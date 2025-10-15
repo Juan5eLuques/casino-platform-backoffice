@@ -21,7 +21,7 @@ export const useBackofficeUsers = (filters: UserFilters = {}) => {
       ...filters,
       userType: 'BACKOFFICE' as const,
    };
-   
+
    return useQuery({
       queryKey: backofficeUsersKeys.list(backofficeFilters),
       queryFn: () => usersApi.getUsers(backofficeFilters),
@@ -56,7 +56,7 @@ export const useBackofficeUserTransactions = (userId: string, filters: any = {})
       userId: userId,
       userType: 'BACKOFFICE' as const,
    };
-   
+
    return useQuery({
       queryKey: backofficeUsersKeys.transactions(userId, filters),
       queryFn: () => transactionsApi.getTransactions(transactionFilters),
@@ -116,17 +116,17 @@ export const useSendBalanceBetweenBackoffice = () => {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: ({ 
-         fromUserId, 
-         toUserId, 
-         amount, 
-         description 
+      mutationFn: ({
+         fromUserId,
+         toUserId,
+         amount,
+         description
       }: {
          fromUserId: string;
          toUserId: string;
          amount: number;
          description: string;
-      }) => transactionsApi.sendBalance(
+      }) => transactionsApi.transferBetweenUsers(
          fromUserId,
          'BACKOFFICE',
          toUserId,

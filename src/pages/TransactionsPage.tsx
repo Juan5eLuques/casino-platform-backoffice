@@ -3,21 +3,20 @@ import { Search, Filter, DollarSign, ArrowUpRight, ArrowDownLeft, FileText } fro
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { FilterButtonGroup } from '@/components/FilterButtonGroup';
 
 import { DataTable, Column } from '@/components/DataTable';
 import { Modal } from '@/components/Modal';
-import { PermissionGuard } from '@/components/PermissionGuard';
-import { Permission } from '@/lib/permissions';
-import { useAuthStore } from '@/store';
-import { 
-  useTransactions, 
-  useCreateTransaction,
-  useSendBalance,
-  useRemoveBalance,
-  useBackofficeUsers,
-  usePlayers
+// import { useAuthStore } from '@/store'; // TODO: Descomentar para quick actions
+import {
+   useTransactions,
+   useCreateTransaction,
+   // useDepositFunds, // TODO: Descomentar para quick actions
+   // useWithdrawFunds, // TODO: Descomentar para quick actions
+   useBackofficeUsers,
+   usePlayers
 } from '@/hooks';
-import type { CreateTransactionRequest } from '@/types';
+import type { CreateTransactionRequest, TransactionType } from '@/types';
 
 // Schema para crear transacción
 const createTransactionSchema = z.object({
@@ -58,22 +57,21 @@ const getTransactionTypeText = (type: string) => {
 };
 
 export function TransactionsPage() {
-   const { user: currentUser } = useAuthStore();
+   // const { user: currentUser } = useAuthStore(); // TODO: Descomentar para quick actions
    const [search, setSearch] = useState('');
-   const [transactionTypeFilter, setTransactionTypeFilter] = useState<string>('');
+   const [transactionTypeFilter, setTransactionTypeFilter] = useState<TransactionType | ''>('');
    const [userTypeFilter, setUserTypeFilter] = useState<'BACKOFFICE' | 'PLAYER' | ''>('');
    const [dateFromFilter, setDateFromFilter] = useState('');
    const [dateToFilter, setDateToFilter] = useState('');
    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-   const [isQuickActionModalOpen, setIsQuickActionModalOpen] = useState(false);
-   const [quickActionType, setQuickActionType] = useState<'send' | 'remove'>('send');
+   // const [isQuickActionModalOpen, setIsQuickActionModalOpen] = useState(false);
 
    // Query para transacciones con filtros
    const { data: transactionsData, isLoading } = useTransactions({
-      userType: userTypeFilter || undefined,
       fromDate: dateFromFilter || undefined,
       toDate: dateToFilter || undefined,
-      description: search || undefined,
+      externalRef: search || undefined,
+      transactionType: transactionTypeFilter || undefined,
    });
 
    // Queries para usuarios (para seleccionar en formularios)
@@ -82,8 +80,8 @@ export function TransactionsPage() {
 
    // Mutations
    const createTransactionMutation = useCreateTransaction();
-   const sendBalanceMutation = useSendBalance();
-   const removeBalanceMutation = useRemoveBalance();
+   // const depositFundsMutation = useDepositFunds(); // TODO: Descomentar para quick actions
+   // const withdrawFundsMutation = useWithdrawFunds(); // TODO: Descomentar para quick actions
 
    const {
       register,
@@ -110,6 +108,7 @@ export function TransactionsPage() {
          toUserId: data.toUserId,
          toUserType: data.toUserType,
          amount: data.amount,
+         transactionType: data.transactionType,
          description: data.description,
          idempotencyKey: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       };
@@ -119,44 +118,45 @@ export function TransactionsPage() {
       setIsCreateModalOpen(false);
    };
 
+   /* TODO: Descomentar cuando se agreguen botones de quick actions
    const handleQuickSend = async (data: { toUserId: string; toUserType: 'BACKOFFICE' | 'PLAYER'; amount: number; description: string }) => {
       if (!currentUser) return;
 
-      await sendBalanceMutation.mutateAsync({
-         fromUserId: currentUser.id,
-         fromUserType: 'BACKOFFICE',
+      await depositFundsMutation.mutateAsync({
+         currentUserId: currentUser.id,
+         currentUserType: 'BACKOFFICE',
+         isSuperAdmin: currentUser.role === 'SUPER_ADMIN',
          toUserId: data.toUserId,
          toUserType: data.toUserType,
          amount: data.amount,
          description: data.description,
       });
 
-      setIsQuickActionModalOpen(false);
+      // setIsQuickActionModalOpen(false);
    };
 
    const handleQuickRemove = async (data: { targetUserId: string; targetUserType: 'BACKOFFICE' | 'PLAYER'; amount: number; description: string }) => {
       if (!currentUser) return;
 
-      await removeBalanceMutation.mutateAsync({
-         fromUserId: currentUser.id,
-         fromUserType: 'BACKOFFICE',
-         targetUserId: data.targetUserId,
-         targetUserType: data.targetUserType,
+      await withdrawFundsMutation.mutateAsync({
+         fromUserId: data.targetUserId,
+         fromUserType: data.targetUserType,
          amount: data.amount,
          description: data.description,
       });
 
-      setIsQuickActionModalOpen(false);
+      // setIsQuickActionModalOpen(false);
    };
+   */
 
    const columns: Column<Record<string, any>>[] = [
       {
          key: 'transactionType',
          header: 'Tipo',
          render: (transaction: any) => (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 min-w-[120px]">
                {getTransactionIcon(transaction.transactionType)}
-               <span className="font-medium">
+               <span className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm">
                   {getTransactionTypeText(transaction.transactionType)}
                </span>
             </div>
@@ -166,11 +166,10 @@ export function TransactionsPage() {
          key: 'amount',
          header: 'Monto',
          render: (transaction: any) => (
-            <span className={`font-mono font-semibold ${
-               transaction.transactionType === 'DEPOSIT' || transaction.transactionType === 'TRANSFER'
-                  ? 'text-green-600'
-                  : 'text-red-600'
-            }`}>
+            <span className={`font-mono font-semibold text-sm sm:text-base whitespace-nowrap ${transaction.transactionType === 'DEPOSIT' || transaction.transactionType === 'TRANSFER'
+               ? 'text-green-600 dark:text-green-400'
+               : 'text-red-600 dark:text-red-400'
+               }`}>
                {transaction.transactionType === 'WITHDRAWAL' ? '-' : '+'}${transaction.amount?.toLocaleString()}
             </span>
          ),
@@ -179,9 +178,9 @@ export function TransactionsPage() {
          key: 'fromUser',
          header: 'Desde',
          render: (transaction: any) => (
-            <div className="text-sm">
-               <div className="font-medium">{transaction.fromUsername || 'Sistema'}</div>
-               <div className="text-gray-500">{transaction.fromUserType}</div>
+            <div className="text-xs sm:text-sm min-w-[100px]">
+               <div className="font-medium text-gray-900 dark:text-white truncate">{transaction.fromUsername || 'Sistema'}</div>
+               <div className="text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs">{transaction.fromUserType}</div>
             </div>
          ),
       },
@@ -189,9 +188,9 @@ export function TransactionsPage() {
          key: 'toUser',
          header: 'Hacia',
          render: (transaction: any) => (
-            <div className="text-sm">
-               <div className="font-medium">{transaction.toUsername || 'Sistema'}</div>
-               <div className="text-gray-500">{transaction.toUserType}</div>
+            <div className="text-xs sm:text-sm min-w-[100px]">
+               <div className="font-medium text-gray-900 dark:text-white truncate">{transaction.toUsername || 'Sistema'}</div>
+               <div className="text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs">{transaction.toUserType}</div>
             </div>
          ),
       },
@@ -199,22 +198,21 @@ export function TransactionsPage() {
          key: 'description',
          header: 'Descripción',
          render: (transaction: any) => (
-            <span className="text-sm text-gray-600">{transaction.description}</span>
+            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 max-w-[200px] truncate block">{transaction.description}</span>
          ),
       },
       {
          key: 'status',
          header: 'Estado',
          render: (transaction: any) => (
-            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-               transaction.status === 'COMPLETED'
-                  ? 'bg-green-100 text-green-800'
-                  : transaction.status === 'PENDING'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'bg-red-100 text-red-800'
-            }`}>
-               {transaction.status === 'COMPLETED' ? 'Completada' : 
-                transaction.status === 'PENDING' ? 'Pendiente' : 'Fallida'}
+            <span className={`inline-flex px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full whitespace-nowrap ${transaction.status === 'COMPLETED'
+               ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+               : transaction.status === 'PENDING'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
+                  : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'
+               }`}>
+               {transaction.status === 'COMPLETED' ? 'Completada' :
+                  transaction.status === 'PENDING' ? 'Pendiente' : 'Fallida'}
             </span>
          ),
       },
@@ -222,148 +220,146 @@ export function TransactionsPage() {
          key: 'createdAt',
          header: 'Fecha',
          render: (transaction: any) => (
-            <div className="text-sm">
-               <div>{new Date(transaction.createdAt).toLocaleDateString()}</div>
-               <div className="text-gray-500">{new Date(transaction.createdAt).toLocaleTimeString()}</div>
+            <div className="text-xs sm:text-sm min-w-[100px]">
+               <div className="text-gray-900 dark:text-white">{new Date(transaction.createdAt).toLocaleDateString()}</div>
+               <div className="text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs">{new Date(transaction.createdAt).toLocaleTimeString()}</div>
             </div>
          ),
       },
    ];
 
    return (
-      <div className="space-y-6">
-         <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Gestión de Transacciones</h1>
-            <div className="flex space-x-2">
-               <PermissionGuard permission={Permission.PLAYER_WALLET_ADJUST}>
-                  <button
-                     onClick={() => {
-                        setQuickActionType('send');
-                        setIsQuickActionModalOpen(true);
-                     }}
-                     className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-                  >
-                     <ArrowDownLeft className="h-4 w-4" />
-                     <span>Envío Rápido</span>
-                  </button>
-               </PermissionGuard>
-               <PermissionGuard permission={Permission.PLAYER_WALLET_ADJUST}>
-                  <button
-                     onClick={() => {
-                        setQuickActionType('remove');
-                        setIsQuickActionModalOpen(true);
-                     }}
-                     className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
-                  >
-                     <ArrowUpRight className="h-4 w-4" />
-                     <span>Retiro Rápido</span>
-                  </button>
-               </PermissionGuard>
-               <PermissionGuard permission={Permission.PLAYER_WALLET_ADJUST}>
-                  <button
-                     onClick={() => setIsCreateModalOpen(true)}
-                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-                  >
-                     <DollarSign className="h-4 w-4" />
-                     <span>Nueva Transacción</span>
-                  </button>
-               </PermissionGuard>
-            </div>
+      <div className="space-y-4 sm:space-y-6">
+         {/* Header - Responsive */}
+         <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+               Gestión de Transacciones
+            </h1>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
+               Visualiza y administra todas las transacciones del sistema
+            </p>
          </div>
 
-         {/* Filtros avanzados */}
-         <div className="bg-white p-4 rounded-lg shadow space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-               <Filter className="h-5 w-5 text-gray-400" />
-               <h3 className="font-medium text-gray-900">Filtros</h3>
+         {/* Filtros avanzados - Responsive */}
+         <div className="bg-white dark:bg-dark-bg-secondary p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 space-y-4 sm:space-y-6">
+            <div className="flex items-center space-x-2">
+               <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
+               <h3 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">Filtros</h3>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                     Buscar
-                  </label>
-                  <div className="relative">
-                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                     <input
-                        type="text"
-                        placeholder="Descripción..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                     />
-                  </div>
-               </div>
 
-               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                     Tipo de Transacción
-                  </label>
-                  <select
-                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     value={transactionTypeFilter}
-                     onChange={(e) => setTransactionTypeFilter(e.target.value)}
-                  >
-                     <option value="">Todos los tipos</option>
-                     <option value="TRANSFER">Transferencia</option>
-                     <option value="DEPOSIT">Depósito</option>
-                     <option value="WITHDRAWAL">Retiro</option>
-                     <option value="ADJUSTMENT">Ajuste</option>
-                  </select>
-               </div>
-
-               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                     Tipo de Usuario
-                  </label>
-                  <select
-                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     value={userTypeFilter}
-                     onChange={(e) => setUserTypeFilter(e.target.value as typeof userTypeFilter)}
-                  >
-                     <option value="">Todos los usuarios</option>
-                     <option value="BACKOFFICE">Backoffice</option>
-                     <option value="PLAYER">Jugadores</option>
-                  </select>
-               </div>
-
-               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                     Rango de Fechas
-                  </label>
-                  <div className="flex space-x-2">
-                     <input
-                        type="date"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={dateFromFilter}
-                        onChange={(e) => setDateFromFilter(e.target.value)}
-                     />
-                     <input
-                        type="date"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={dateToFilter}
-                        onChange={(e) => setDateToFilter(e.target.value)}
-                     />
-                  </div>
+            {/* Búsqueda */}
+            <div className="space-y-2">
+               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Buscar por descripción
+               </label>
+               <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
+                  <input
+                     type="text"
+                     placeholder="Descripción..."
+                     className="w-full pl-10 pr-4 py-2 sm:py-2.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-bg-tertiary text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                     value={search}
+                     onChange={(e) => setSearch(e.target.value)}
+                  />
                </div>
             </div>
+
+            {/* Tipo de Transacción - Botones */}
+            <div className="space-y-3">
+               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Tipo de Transacción
+               </label>
+               <FilterButtonGroup
+                  value={transactionTypeFilter}
+                  onChange={setTransactionTypeFilter}
+                  options={[
+                     { value: '', label: 'Todas', icon: <Filter className="w-4 h-4" /> },
+                     { value: 'MINT', label: 'Deposito', icon: <DollarSign className="w-4 h-4" /> },
+                     { value: 'TRANSFER', label: 'Transferencia', icon: <DollarSign className="w-4 h-4" /> },
+                     // { value: 'BET', label: 'Bet', icon: <ArrowUpRight className="w-4 h-4" /> },
+                     // { value: 'WIN', label: 'Win', icon: <ArrowDownLeft className="w-4 h-4" /> },
+                     // { value: 'ROLLBACK', label: 'RollBack', icon: <FileText className="w-4 h-4" /> },
+                     // { value: 'DEPOSIT', label: 'Deposito', icon: <ArrowDownLeft className="w-4 h-4" /> },
+                     // { value: 'WITHDRAWAL', label: 'Retirado', icon: <ArrowUpRight className="w-4 h-4" /> },
+                     // { value: 'BONUS', label: 'Bonus', icon: <DollarSign className="w-4 h-4" /> },
+                     // { value: 'ADJUSTMENT', label: 'Ajuste', icon: <FileText className="w-4 h-4" /> },
+                  ]}
+               />
+            </div>
+
+            {/* Tipo de Usuario - Botones */}
+            <div className="space-y-3">
+               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Tipo de Usuario
+               </label>
+               <FilterButtonGroup
+                  value={userTypeFilter}
+                  onChange={setUserTypeFilter}
+                  options={[
+                     { value: '', label: 'Todos' },
+                     { value: 'BACKOFFICE', label: 'Backoffice' },
+                     { value: 'PLAYER', label: 'Jugadores' },
+                  ]}
+               />
+            </div>
+
+            {/* Rango de Fechas - Responsive */}
+            <div className="space-y-2">
+               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Rango de Fechas
+               </label>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  <input
+                     type="date"
+                     className="px-3 py-2 sm:py-2.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-bg-tertiary text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                     value={dateFromFilter}
+                     onChange={(e) => setDateFromFilter(e.target.value)}
+                     placeholder="Desde"
+                  />
+                  <input
+                     type="date"
+                     className="px-3 py-2 sm:py-2.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-bg-tertiary text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                     value={dateToFilter}
+                     onChange={(e) => setDateToFilter(e.target.value)}
+                     placeholder="Hasta"
+                  />
+               </div>
+            </div>
+
+            {/* Botón para limpiar filtros */}
+            {(search || transactionTypeFilter || userTypeFilter || dateFromFilter || dateToFilter) && (
+               <button
+                  onClick={() => {
+                     setSearch('');
+                     setTransactionTypeFilter('');
+                     setUserTypeFilter('');
+                     setDateFromFilter('');
+                     setDateToFilter('');
+                  }}
+                  className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+               >
+                  Limpiar filtros
+               </button>
+            )}
          </div>
 
-         {/* Tabla de transacciones */}
-         <div className="bg-white rounded-lg shadow">
-            <DataTable
-               data={transactionsData?.data || []}
-               columns={columns}
-               isLoading={isLoading}
-               pagination={{
-                  page: transactionsData?.pagination?.page || 1,
-                  pageSize: transactionsData?.pagination?.limit || 20,
-                  totalCount: transactionsData?.pagination?.total || 0,
-                  totalPages: transactionsData?.pagination?.pages || 1,
-                  onPageChange: () => {},
-               }}
-               keyExtractor={(transaction) => transaction.id}
-            />
+         {/* Tabla de transacciones - Responsive */}
+         <div className="bg-white dark:bg-dark-bg-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="overflow-x-auto">
+               <DataTable
+                  data={transactionsData?.data || []}
+                  columns={columns}
+                  isLoading={isLoading}
+                  pagination={{
+                     page: transactionsData?.pagination?.page || 1,
+                     pageSize: transactionsData?.pagination?.limit || 20,
+                     totalCount: transactionsData?.pagination?.total || 0,
+                     totalPages: transactionsData?.pagination?.pages || 1,
+                     onPageChange: () => { },
+                  }}
+                  keyExtractor={(transaction) => transaction.id}
+               />
+            </div>
          </div>
 
          {/* Modal para crear transacción */}
@@ -399,7 +395,7 @@ export function TransactionsPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      >
                         <option value="">Seleccionar usuario</option>
-                        {selectedFromUserType === 'BACKOFFICE' 
+                        {selectedFromUserType === 'BACKOFFICE'
                            ? backofficeUsers?.data.map(user => (
                               <option key={user.id} value={user.id}>{user.username}</option>
                            ))
@@ -437,7 +433,7 @@ export function TransactionsPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      >
                         <option value="">Seleccionar usuario</option>
-                        {selectedToUserType === 'BACKOFFICE' 
+                        {selectedToUserType === 'BACKOFFICE'
                            ? backofficeUsers?.data.map(user => (
                               <option key={user.id} value={user.id}>{user.username}</option>
                            ))
@@ -526,24 +522,26 @@ export function TransactionsPage() {
             </form>
          </Modal>
 
-         {/* Modal para acciones rápidas */}
+         {/* TODO: Modal para acciones rápidas - Descomentar cuando se agreguen botones de quick actions
          <Modal
             isOpen={isQuickActionModalOpen}
             onClose={() => setIsQuickActionModalOpen(false)}
-            title={quickActionType === 'send' ? 'Envío Rápido' : 'Retiro Rápido'}
+            title="Acción Rápida"
          >
             <QuickActionModal
-               action={quickActionType}
-               onConfirm={quickActionType === 'send' ? handleQuickSend : handleQuickRemove}
+               action="send"
+               onConfirm={handleQuickSend}
                onCancel={() => setIsQuickActionModalOpen(false)}
                backofficeUsers={backofficeUsers?.data || []}
                players={players?.data || []}
             />
          </Modal>
+         */}
       </div>
    );
 }
 
+/* TODO: Descomentar cuando se agreguen botones de quick actions
 // Componente para modal de acciones rápidas
 const QuickActionModal = ({ action, onConfirm, onCancel, backofficeUsers, players }: {
    action: 'send' | 'remove';
@@ -660,11 +658,10 @@ const QuickActionModal = ({ action, onConfirm, onCancel, backofficeUsers, player
             </button>
             <button
                type="submit"
-               className={`px-4 py-2 text-white rounded-lg transition-colors ${
-                  action === 'send'
-                     ? 'bg-green-600 hover:bg-green-700'
-                     : 'bg-red-600 hover:bg-red-700'
-               }`}
+               className={`px-4 py-2 text-white rounded-lg transition-colors ${action === 'send'
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-red-600 hover:bg-red-700'
+                  }`}
             >
                {action === 'send' ? 'Enviar Fondos' : 'Retirar Fondos'}
             </button>
@@ -672,3 +669,4 @@ const QuickActionModal = ({ action, onConfirm, onCancel, backofficeUsers, player
       </form>
    );
 };
+*/

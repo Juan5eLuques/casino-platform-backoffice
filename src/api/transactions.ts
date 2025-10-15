@@ -3,6 +3,7 @@ import type {
    TransactionFilters,
    TransactionResponse,
    CreateTransactionRequest,
+   RollbackTransactionRequest,
    PaginatedResponse,
    UserBalanceResponse
 } from '@/types';
@@ -12,7 +13,7 @@ export const transactionsApi = {
    getTransactions: async (filters: TransactionFilters = {}): Promise<PaginatedResponse<TransactionResponse>> => {
       try {
          const params = new URLSearchParams();
-         
+
          // Agregar todos los parámetros de filtro válidos
          Object.entries(filters).forEach(([key, value]) => {
             if (value !== undefined && value !== '') {
@@ -35,7 +36,7 @@ export const transactionsApi = {
       }
    },
 
-   // Create transaction (send/remove balance)
+   // Create transaction - Nueva API unificada
    createTransaction: async (transactionData: CreateTransactionRequest): Promise<TransactionResponse> => {
       try {
          const response = await apiClient.post('/admin/transactions', transactionData);
@@ -45,7 +46,18 @@ export const transactionsApi = {
       }
    },
 
-   // Get user balance - Convenience method
+   // Rollback transaction - Revertir una transacción
+   rollbackTransaction: async (externalRef: string): Promise<TransactionResponse> => {
+      try {
+         const rollbackData: RollbackTransactionRequest = { externalRef };
+         const response = await apiClient.post('/admin/transactions/rollback', rollbackData);
+         return handleApiResponse<TransactionResponse>(response);
+      } catch (error) {
+         return handleApiError(error);
+      }
+   },
+
+   // Get user balance
    getUserBalance: async (userId: string, userType: 'BACKOFFICE' | 'PLAYER'): Promise<UserBalanceResponse> => {
       try {
          const response = await apiClient.get(`/admin/users/${userId}/balance?userType=${userType}`);
@@ -55,50 +67,85 @@ export const transactionsApi = {
       }
    },
 
-   // Helper method to send balance (positive transaction)
-   sendBalance: async (
+   // ========== MÉTODOS HELPER PARA OPERACIONES DEL BACKOFFICE ==========
+
+   /**
+    * DEPÓSITO (Botón +)
+    * - SUPER_ADMIN: Usa DEPOSIT (crea dinero desde null)
+    * - Otros roles: Usa TRANSFER (desde su wallet)
+    */
+   depositFunds: async (
+      currentUserId: string,
+      currentUserType: 'BACKOFFICE' | 'PLAYER',
+      isSuperAdmin: boolean,
+      toUserId: string,
+      toUserType: 'BACKOFFICE' | 'PLAYER',
+      amount: number,
+      description?: string
+   ): Promise<TransactionResponse> => {
+      const transactionData: CreateTransactionRequest = {
+         fromUserId: isSuperAdmin ? null : currentUserId,
+         fromUserType: isSuperAdmin ? null : currentUserType,
+         toUserId,
+         toUserType,
+         amount: Math.abs(amount),
+         transactionType: isSuperAdmin ? 'DEPOSIT' : 'TRANSFER',
+         idempotencyKey: `deposit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+         description: description || (isSuperAdmin ? 'Depósito de fondos' : 'Transferencia de fondos')
+      };
+
+      return transactionsApi.createTransaction(transactionData);
+   },
+
+   /**
+    * RETIRO (Botón -)
+    * Usa TRANSFER invirtiendo los usuarios: del target al current user
+    */
+   withdrawFunds: async (
+      currentUserId: string,
+      currentUserType: 'BACKOFFICE' | 'PLAYER',
+      targetUserId: string,
+      targetUserType: 'BACKOFFICE' | 'PLAYER',
+      amount: number,
+      description?: string
+   ): Promise<TransactionResponse> => {
+      const transactionData: CreateTransactionRequest = {
+         fromUserId: targetUserId,  // INVERTIDO: del usuario target
+         fromUserType: targetUserType,
+         toUserId: currentUserId,    // INVERTIDO: hacia el usuario actual
+         toUserType: currentUserType,
+         amount: Math.abs(amount),
+         transactionType: 'TRANSFER',
+         idempotencyKey: `withdrawal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+         description: description || 'Retiro de fondos'
+      };
+
+      return transactionsApi.createTransaction(transactionData);
+   },
+
+   /**
+    * TRANSFERENCIA EXPLÍCITA
+    * Transferir fondos entre usuarios específicos
+    */
+   transferBetweenUsers: async (
       fromUserId: string,
       fromUserType: 'BACKOFFICE' | 'PLAYER',
       toUserId: string,
       toUserType: 'BACKOFFICE' | 'PLAYER',
       amount: number,
-      description: string,
-      idempotencyKey?: string
+      description?: string
    ): Promise<TransactionResponse> => {
       const transactionData: CreateTransactionRequest = {
          fromUserId,
          fromUserType,
          toUserId,
          toUserType,
-         amount: Math.abs(amount), // Asegurar que sea positivo
-         description,
-         idempotencyKey: idempotencyKey || `send-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+         amount: Math.abs(amount),
+         transactionType: 'TRANSFER',
+         idempotencyKey: `transfer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+         description: description || 'Transferencia entre usuarios'
       };
-      
-      return transactionsApi.createTransaction(transactionData);
-   },
 
-   // Helper method to remove balance (inverse transaction)
-   removeBalance: async (
-      fromUserId: string,
-      fromUserType: 'BACKOFFICE' | 'PLAYER',
-      targetUserId: string,
-      targetUserType: 'BACKOFFICE' | 'PLAYER',
-      amount: number,
-      description: string,
-      idempotencyKey?: string
-   ): Promise<TransactionResponse> => {
-      // Para quitar balance, invertimos fromUserId y toUserId
-      const transactionData: CreateTransactionRequest = {
-         fromUserId: targetUserId,    // El usuario al que le quitamos
-         fromUserType: targetUserType,
-         toUserId: fromUserId,        // El admin que quita
-         toUserType: fromUserType,
-         amount: Math.abs(amount),    // Mantener positivo
-         description: `Retiro: ${description}`,
-         idempotencyKey: idempotencyKey || `remove-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      };
-      
       return transactionsApi.createTransaction(transactionData);
    },
 };

@@ -177,6 +177,14 @@ export interface PaginatedResponse<T> {
    };
 }
 
+export interface AuditPaginatedResponse<T> {
+   data: T[];
+   page: number;
+   pageSize: number;
+   totalCount: number;
+   totalPages: number;
+}
+
 export interface ApiError {
    title: string;
    detail: string;
@@ -187,16 +195,15 @@ export interface ApiError {
 // Audit types
 export interface AuditLog {
    id: string;
+   userId: string;
+   username: string;
+   userRole: string;
+   operatorName: string | null;
    action: string;
    targetType: string;
    targetId: string;
    meta?: Record<string, any>;
    createdAt: string;
-   user: {
-      id: string;
-      username: string;
-      role: BackofficeRole;
-   };
 }
 
 export interface ProviderAuditLog {
@@ -253,13 +260,15 @@ export interface PlayerFilters {
 export interface UserFilters {
    page?: number;
    pageSize?: number;
-   globalScope?: boolean;     // Solo SUPER_ADMIN puede usar true
-   username?: string;         // Filtro por username (contiene)
-   userType?: 'BACKOFFICE' | 'PLAYER';  // Nuevo: BACKOFFICE o PLAYER
+   globalScope?: boolean;          // Solo SUPER_ADMIN puede usar true
+   username?: string;              // Filtro por username (contiene)
+   userType?: 'BACKOFFICE' | 'PLAYER';  // BACKOFFICE o PLAYER
    role?: 'SUPER_ADMIN' | 'BRAND_ADMIN' | 'CASHIER' | 'PLAYER';
-   status?: 'ACTIVE' | 'INACTIVE';      // Filtro por status
-   createdByUserId?: string;  // Filtro por creador
-   parentCashierId?: string;  // Filtro por cashier padre
+   status?: 'ACTIVE' | 'INACTIVE'; // Filtro por status
+   createdByUserId?: string;       // Filtro por creador
+   parentCashierId?: string;       // Filtro por cashier padre
+   createdFrom?: string;           // Fecha de creación desde (ISO)
+   createdTo?: string;             // Fecha de creación hasta (ISO)
 }
 
 export interface BrandFilters {
@@ -324,18 +333,20 @@ export interface WalletAdjustment {
 
 // Unified User Creation Form - según nueva API
 export interface CreateUserForm {
-   username: string;          // Requerido: nombre de usuario
-   password: string;          // Requerido: contraseña
-   role?: number;             // 0: SUPER_ADMIN, 1: BRAND_ADMIN, 2: CASHIER, 3: PLAYER
-   commissionPercent?: number; // Solo para CASHIER, opcional para otros roles
-   email?: string;            // Email válido (principalmente para jugadores)
+   username: string;                  // Requerido: nombre de usuario
+   password?: string;                 // Opcional para player, requerido para backoffice
+   role?: number;                     // Rol númerico según API: 0-3
+   email?: string;                    // Email válido (solo para jugadores)
+   externalId?: string;               // ID externo (solo para jugadores)
+   parentCashierId?: string;          // GUID del cashier padre (solo para CASHIER subordinado)
+   commissionPercent?: number;        // Comisión en porcentaje 0-100 (solo para CASHIER)
 }// Response unificado para cualquier tipo de usuario según nueva API
 export interface UserResponse {
    id: string;
    userType: 'BACKOFFICE' | 'PLAYER';  // Tipo principal del usuario
    username: string;
    email?: string;                     // Para jugadores principalmente
-   role?: 'SUPER_ADMIN' | 'BRAND_ADMIN' | 'CASHIER' | 'PLAYER';
+   role?: 'SUPER_ADMIN' | 'BRAND_ADMIN' | 'CASHIER' | 'PLAYER' | null;
    status: 'ACTIVE' | 'INACTIVE';
    brandId?: string;
    brandName?: string;
@@ -344,12 +355,13 @@ export interface UserResponse {
    createdByUserId?: string;
    createdByUsername?: string;
    createdByRole?: string;
-   
+
    // Campos adicionales específicos
    commissionPercent?: number;         // Para CASHIER
-   parentCashierId?: string;          // Para CASHIER subordinados
+   parentCashierId?: string | null;   // Para CASHIER subordinados
+   parentCashierUsername?: string | null;  // Username del cashier padre
    subordinatesCount?: number;
-   lastLoginAt?: string;
+   lastLoginAt?: string | null;
 }// Update User Request - para actualizar cualquier tipo de usuario
 export interface UpdateUserForm {
    username?: string;         // Nuevo username
@@ -378,55 +390,77 @@ export interface WalletAdjustmentResponse {
    message: string;
 }
 
+// Transaction Types según la nueva API unificada
+export type TransactionType =
+   | 'MINT'         // Crear dinero (solo SUPER_ADMIN)
+   | 'TRANSFER'     // Transferencia
+   | 'DEPOSIT'      // Depósito
+   | 'WITHDRAWAL'   // Retiro
+   | 'BONUS'        // Bonificación
+   | 'ADJUSTMENT'   // Ajuste manual
+   | 'BET'          // Apuesta (sistema)
+   | 'WIN'          // Ganancia (sistema)
+   | 'ROLLBACK';    // Revertir transacción
+
 // Nuevos tipos para Transacciones según la API
 export interface TransactionResponse {
    id: string;
-   type: 'TRANSFER' | 'MINT';
-   fromUserId?: string;
-   fromUserType?: 'BACKOFFICE' | 'PLAYER';
-   fromUsername?: string;
-   toUserId?: string;
-   toUserType?: 'BACKOFFICE' | 'PLAYER';
-   toUsername?: string;
+   brandId: string;
+   type: TransactionType;
+   fromUserId?: string | null;
+   fromUserType?: 'BACKOFFICE' | 'PLAYER' | null;
+   fromUsername?: string | null;
+   toUserId?: string | null;
+   toUserType?: 'BACKOFFICE' | 'PLAYER' | 'HOUSE' | null;
+   toUsername?: string | null;
    amount: number;
-   previousBalanceFrom?: number;
-   newBalanceFrom?: number;
-   previousBalanceTo?: number;
-   newBalanceTo?: number;
+   previousBalanceFrom?: number | null;
+   newBalanceFrom?: number | null;
+   previousBalanceTo?: number | null;
+   newBalanceTo?: number | null;
    description: string;
+   transactionType: TransactionType;
    createdByUserId: string;
    createdByUsername: string;
    createdByRole: string;
+   idempotencyKey: string;
    createdAt: string;
 }
 
+// Request para crear transacción - Nueva API Unificada
 export interface CreateTransactionRequest {
-   fromUserId: string;
-   fromUserType: 'BACKOFFICE' | 'PLAYER';
-   toUserId: string;
-   toUserType: 'BACKOFFICE' | 'PLAYER';
-   amount: number;
-   idempotencyKey: string;    // Único por operación
-   description: string;
+   fromUserId?: string | null;        // ID usuario origen (null para MINT)
+   fromUserType?: 'BACKOFFICE' | 'PLAYER' | null;  // Tipo origen (null para MINT)
+   toUserId: string;                  // ID usuario destino
+   toUserType: 'BACKOFFICE' | 'PLAYER';  // Tipo destino
+   amount: number;                    // Monto en formato decimal
+   transactionType: TransactionType;  // Tipo de transacción
+   idempotencyKey: string;            // Clave de idempotencia (REQUERIDO)
+   description?: string;              // Descripción opcional
+}
+
+// Request para rollback
+export interface RollbackTransactionRequest {
+   externalRef: string;           // Referencia externa de la transacción a revertir
 }
 
 export interface TransactionFilters {
-   userId?: string;           // Filtra por usuario origen o destino
-   userType?: 'BACKOFFICE' | 'PLAYER';
-   fromDate?: string;         // ISO date string
-   toDate?: string;           // ISO date string
-   description?: string;      // Filtra por descripción
-   globalScope?: boolean;     // Solo SUPER_ADMIN
-   page?: number;
-   pageSize?: number;
+   page?: number;                 // Número de página (default: 1)
+   pageSize?: number;             // Elementos por página (default: 20, max: 100)
+   playerId?: string;             // Filtrar por jugador específico
+   userId?: string;               // Alias para playerId (retrocompatibilidad)
+   transactionType?: TransactionType;  // Filtrar por tipo de transacción
+   fromDate?: string;             // Fecha desde (ISO 8601)
+   toDate?: string;               // Fecha hasta (ISO 8601)
+   externalRef?: string;          // Buscar por referencia externa
+   globalScope?: boolean;         // Ver todas las brands (solo SUPER_ADMIN)
 }
 
 export interface UserBalanceResponse {
    userId: string;
    userType: 'BACKOFFICE' | 'PLAYER';
+   username: string;
    balance: number;
-   currency: string;
-   lastTransactionAt?: string;
 }
 
 // Notification types

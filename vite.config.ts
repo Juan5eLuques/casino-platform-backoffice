@@ -17,7 +17,7 @@ export default defineConfig({
       proxy: {
          // Proxy para evitar CORS en desarrollo según especificaciones
          '/api': {
-            target: 'https://localhost:7182', // VITE_API_ORIGIN
+            target: 'https://casino-platform-production.up.railway.app/', // VITE_API_ORIGIN
             changeOrigin: true,
             secure: false // Para certificados self-signed en desarrollo
          }

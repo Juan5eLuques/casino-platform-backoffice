@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, FileText, Download } from 'lucide-react';
-import { format } from 'date-fns';
+import { FileText, Download } from 'lucide-react';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { auditApi } from '@/api/audit';
 import { DataTable, Column } from '@/components/DataTable';
@@ -10,17 +11,30 @@ import { Permission } from '@/lib/permissions';
 import type { AuditLog } from '@/types';
 
 export function AuditPage() {
+   const { userId: userIdParam } = useParams<{ userId: string }>();
+   const navigate = useNavigate();
+   
    const [activeTab, setActiveTab] = useState<'backoffice' | 'provider'>('backoffice');
-   const [search, setSearch] = useState('');
    const [actionFilter, setActionFilter] = useState('');
    const [page, setPage] = useState(1);
+   
+   // Filtros de fecha: por defecto, inicio y fin del mes actual
+   const [fromDate, setFromDate] = useState<string>(
+      format(startOfMonth(new Date()), 'yyyy-MM-dd')
+   );
+   const [toDate, setToDate] = useState<string>(
+      format(endOfMonth(new Date()), 'yyyy-MM-dd')
+   );
 
    // Query para logs de backoffice
    const { data: backofficeData, isLoading: isLoadingBackoffice } = useQuery({
-      queryKey: ['audit', 'backoffice', search, actionFilter, page],
+      queryKey: ['audit', 'backoffice', actionFilter, page, fromDate, toDate, userIdParam],
       queryFn: () =>
          auditApi.getBackofficeLogs({
+            userId: userIdParam,
             action: actionFilter || undefined,
+            startDate: fromDate ? `${fromDate}T00:00:00Z` : undefined,
+            endDate: toDate ? `${toDate}T23:59:59Z` : undefined,
             page,
             pageSize: 50,
          }),
@@ -29,7 +43,7 @@ export function AuditPage() {
 
    // Query para logs de providers
    const { data: providerData, isLoading: isLoadingProvider } = useQuery({
-      queryKey: ['audit', 'provider', search, actionFilter, page],
+      queryKey: ['audit', 'provider', actionFilter, page],
       queryFn: () =>
          auditApi.getProviderLogs({
             action: actionFilter || undefined,
@@ -47,17 +61,22 @@ export function AuditPage() {
          render: (log) => (
             <div className="text-sm">
                <div>{format(new Date(log.createdAt), 'dd/MM/yyyy')}</div>
-               <div className="text-gray-500">{format(new Date(log.createdAt), 'HH:mm:ss')}</div>
+               <div className="text-gray-500 dark:text-gray-400">{format(new Date(log.createdAt), 'HH:mm:ss')}</div>
             </div>
          ),
       },
       {
-         key: 'user',
+         key: 'username',
          header: 'Usuario',
          render: (log) => (
             <div>
-               <div className="font-medium">{log.user.username}</div>
-               <div className="text-xs text-gray-500">{log.user.role}</div>
+               <button
+                  onClick={() => navigate(`/audit/${log.userId}`)}
+                  className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+               >
+                  {log.username}
+               </button>
+               <div className="text-xs text-gray-500 dark:text-gray-400">{log.userRole}</div>
             </div>
          ),
       },
@@ -74,7 +93,9 @@ export function AuditPage() {
       {
          key: 'targetType',
          header: 'Tipo',
-         render: (log) => log.targetType,
+         render: (log) => (
+            <span className="text-sm text-gray-700 dark:text-gray-300">{log.targetType}</span>
+         ),
       },
       {
          key: 'targetId',
@@ -89,8 +110,8 @@ export function AuditPage() {
          key: 'meta',
          header: 'Detalles',
          render: (log) => (
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-               {log.meta ? JSON.stringify(log.meta).substring(0, 50) + '...' : '-'}
+            <div className="text-xs text-gray-600 dark:text-gray-400 max-w-xs truncate">
+               {log.meta ? JSON.stringify(log.meta).substring(0, 60) + '...' : '-'}
             </div>
          ),
       },
@@ -100,28 +121,42 @@ export function AuditPage() {
       <PermissionGuard permission={Permission.AUDIT_READ}>
          <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-               <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                     <FileText className="w-8 h-8 mr-3" />
-                     Auditoría
-                  </h1>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">
-                     Visualiza el historial de acciones del sistema
-                  </p>
+            <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div className="flex-1">
+                     <div className="flex items-center">
+                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 mr-2 sm:mr-3 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                           Auditoría {userIdParam && '- Usuario Específico'}
+                        </h1>
+                     </div>
+                     <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
+                        {userIdParam 
+                           ? `Mostrando registros del usuario: ${userIdParam}` 
+                           : 'Visualiza el historial de acciones del sistema'}
+                     </p>
+                     {userIdParam && (
+                        <button
+                           onClick={() => navigate('/audit')}
+                           className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center"
+                        >
+                           ← Volver a todos los registros
+                        </button>
+                     )}
+                  </div>
+                  <PermissionGuard permission={Permission.AUDIT_EXPORT}>
+                     <button
+                        onClick={() => {
+                           // TODO: Implementar exportación
+                           alert('Exportación en desarrollo');
+                        }}
+                        className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap"
+                     >
+                        <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        Exportar CSV
+                     </button>
+                  </PermissionGuard>
                </div>
-               <PermissionGuard permission={Permission.AUDIT_EXPORT}>
-                  <button
-                     onClick={() => {
-                        // TODO: Implementar exportación
-                        alert('Exportación en desarrollo');
-                     }}
-                     className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                     <Download className="w-5 h-5 mr-2" />
-                     Exportar CSV
-                  </button>
-               </PermissionGuard>
             </div>
 
             {/* Tabs */}
@@ -155,47 +190,89 @@ export function AuditPage() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-               <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                     type="text"
-                     placeholder="Buscar en logs..."
-                     value={search}
-                     onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                     }}
-                     className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                  />
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Filtro de acción */}
+                  <div>
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Acción
+                     </label>
+                     <input
+                        type="text"
+                        placeholder="Ej: CREATE_USER"
+                        value={actionFilter}
+                        onChange={(e) => {
+                           setActionFilter(e.target.value);
+                           setPage(1);
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                     />
+                  </div>
+
+                  {/* Fecha desde */}
+                  <div>
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Desde
+                     </label>
+                     <input
+                        type="date"
+                        value={fromDate}
+                        onChange={(e) => {
+                           setFromDate(e.target.value);
+                           setPage(1);
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                     />
+                  </div>
+
+                  {/* Fecha hasta */}
+                  <div>
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Hasta
+                     </label>
+                     <input
+                        type="date"
+                        value={toDate}
+                        onChange={(e) => {
+                           setToDate(e.target.value);
+                           setPage(1);
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                     />
+                  </div>
+
+                  {/* Botón limpiar filtros */}
+                  <div className="flex items-end">
+                     <button
+                        onClick={() => {
+                           setActionFilter('');
+                           setFromDate(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
+                           setToDate(format(endOfMonth(new Date()), 'yyyy-MM-dd'));
+                           setPage(1);
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                     >
+                        Limpiar Filtros
+                     </button>
+                  </div>
                </div>
-               <input
-                  type="text"
-                  placeholder="Filtrar por acción..."
-                  value={actionFilter}
-                  onChange={(e) => {
-                     setActionFilter(e.target.value);
-                     setPage(1);
-                  }}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-               />
             </div>
 
             {/* Table */}
             {activeTab === 'backoffice' && (
                <DataTable
-                  data={(backofficeData?.data as AuditLog[]) || []}
+                  data={backofficeData?.data || []}
                   columns={backofficeColumns}
                   keyExtractor={(log) => log.id}
                   isLoading={isLoadingBackoffice}
                   emptyMessage="No se encontraron registros de auditoría"
                   pagination={
-                     backofficeData?.pagination
+                     backofficeData
                         ? {
-                           page,
-                           pageSize: backofficeData.pagination.limit,
-                           totalCount: backofficeData.pagination.total,
-                           totalPages: backofficeData.pagination.pages,
+                           page: backofficeData.page,
+                           pageSize: backofficeData.pageSize,
+                           totalCount: backofficeData.totalCount,
+                           totalPages: backofficeData.totalPages,
                            onPageChange: setPage,
                         }
                         : undefined

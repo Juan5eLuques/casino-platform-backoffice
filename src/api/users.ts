@@ -13,7 +13,7 @@ export const usersApi = {
    getUsers: async (filters: UserFilters = {}): Promise<PaginatedResponse<UserResponse>> => {
       try {
          const params = new URLSearchParams();
-         
+
          // Agregar todos los parámetros de filtro válidos
          Object.entries(filters).forEach(([key, value]) => {
             if (value !== undefined && value !== '') {

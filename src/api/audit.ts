@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { AuditLog, ProviderAuditLog, PaginatedResponse } from '@/types';
+import { AuditLog, ProviderAuditLog, PaginatedResponse, AuditPaginatedResponse } from '@/types';
 
 interface BackofficeAuditParams {
    userId?: string;
@@ -29,8 +29,8 @@ export const auditApi = {
     * Obtener logs de auditoría del backoffice
     */
    getBackofficeLogs: async (params?: BackofficeAuditParams) => {
-      const response = await apiClient.get<PaginatedResponse<AuditLog>>(
-         '/api/v1/admin/audit/backoffice',
+      const response = await apiClient.get<AuditPaginatedResponse<AuditLog>>(
+         '/admin/audit/backoffice',
          { params }
       );
       return response.data;

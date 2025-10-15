@@ -7,13 +7,13 @@ import { DashboardPage } from './pages/DashboardPage';
 import { OperatorsPage } from './pages/OperatorsPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { UsersPage } from './pages/UsersPage';
+import { UserDetailPage } from './pages/UserDetailPage';
 import { TransactionsPage } from './pages/TransactionsPage';
 import { BrandsPage } from './pages/BrandsPage';
 import { GamesPage } from './pages/GamesPage';
 import { AuditPage } from './pages/AuditPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { CashierDashboard } from './pages/admin/CashierDashboard';
-import { ApiConnectionTest } from './components/ApiConnectionTest';
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -90,10 +90,12 @@ function App() {
                <Route path="operators" element={<OperatorsPage />} />
                <Route path="players" element={<PlayersPage />} />
                <Route path="users" element={<UsersPage />} />
+               <Route path="users/:userId" element={<UserDetailPage />} />
                <Route path="transactions" element={<TransactionsPage />} />
                <Route path="brands" element={<BrandsPage />} />
                <Route path="games" element={<GamesPage />} />
                <Route path="audit" element={<AuditPage />} />
+               <Route path="audit/:userId" element={<AuditPage />} />
                <Route path="settings" element={<SettingsPage />} />
             </Route>
 

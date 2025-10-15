@@ -7,8 +7,12 @@ export {
    useTransactions,
    useUserBalance,
    useCreateTransaction,
-   useSendBalance,
-   useRemoveBalance
+   useDepositFunds,
+   useWithdrawFunds,
+   useTransferBetweenUsers,
+   useRollbackTransaction,
+   useSendBalance,      // deprecated - usar useDepositFunds
+   useRemoveBalance     // deprecated - usar useWithdrawFunds
 } from './useTransactions';
 export {
    useBackofficeUsers,
@@ -21,3 +25,13 @@ export {
    useChangeBackofficeUserPassword,
    useResetBackofficeUserPassword
 } from './useBackofficeUsers';
+export {
+   useUsers,
+   useUser,
+   useSearchUserByUsername,
+   useCreateUser,
+   useUpdateUser,
+   useDeleteUser,
+   useChangeUserPassword,
+   useResetUserPassword
+} from './useUsers';

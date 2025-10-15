@@ -7,17 +7,25 @@ import {
    ChevronDownIcon,
    ArrowRightOnRectangleIcon,
    UserIcon,
+   WalletIcon,
+   Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useAuthStore, useUIStore } from '@/store';
 import { useLogout } from '@/hooks/useAuth';
 import { getInitials, getRoleBadgeClass } from '@/utils';
+import { useUserBalance } from '@/hooks/useTransactions';
+import { cn } from '@/utils';
 
 export function Header() {
    const { user, currentBrand, availableBrands, switchBrand } = useAuthStore();
-   const { darkMode, toggleDarkMode } = useUIStore();
+   const { darkMode, toggleDarkMode, toggleSidebar } = useUIStore();
    const logoutMutation = useLogout();
+   const { data: balanceData, isLoading: isLoadingBalance } = useUserBalance(
+      user?.id || '',
+      'BACKOFFICE'
+   );
 
    const handleLogout = async () => {
       try {
@@ -27,11 +35,28 @@ export function Header() {
       }
    };
 
+   const formatCurrency = (amount: number): string => {
+      return new Intl.NumberFormat('es-ES', {
+         style: 'currency',
+         currency: 'USD',
+         minimumFractionDigits: 2,
+         maximumFractionDigits: 2,
+      }).format(amount);
+   };
+
    return (
-      <header className="bg-white dark:bg-dark-bg-secondary border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-6">
-         {/* Left side - Search */}
-         <div className="flex items-center space-x-4">
-            <div className="relative">
+      <header className="bg-white dark:bg-dark-bg-secondary border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 sm:px-6">
+         {/* Left side - Hamburger + Search */}
+         <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Botón Hamburguesa - Solo visible en mobile y tablet */}
+            <button
+               onClick={toggleSidebar}
+               className="lg:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+               <Bars3Icon className="w-6 h-6" />
+            </button>
+
+            <div className="relative hidden lg:block">
                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                <input
                   type="text"
@@ -41,8 +66,27 @@ export function Header() {
             </div>
          </div>
 
-         {/* Right side - Actions and User Menu */}
-         <div className="flex items-center space-x-4">
+         {/* Right side - Balance, Actions and User Menu */}
+         <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Balance Display - Compacto */}
+            {user && (
+               <div className={cn(
+                  'hidden sm:flex items-center space-x-1.5 px-2 py-1 rounded-md',
+                  'border border-primary-400 dark:border-primary-600',
+                  'shadow-sm'
+               )}>
+                  <WalletIcon className="w-4 h-4 text-white flex-shrink-0" />
+                  {isLoadingBalance ? (
+                     <div className="animate-pulse">
+                        <div className="h-3 w-16 bg-white/30 rounded" />
+                     </div>
+                  ) : (
+                     <span className="text-xs font-bold text-white whitespace-nowrap">
+                        {formatCurrency(balanceData?.balance || 0)}
+                     </span>
+                  )}
+               </div>
+            )}
             {/* Brand Selector */}
             {availableBrands.length > 1 && (
                <Menu as="div" className="relative">

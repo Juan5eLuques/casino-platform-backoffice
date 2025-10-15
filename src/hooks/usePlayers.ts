@@ -21,7 +21,7 @@ export const usePlayers = (filters: UserFilters = {}) => {
       ...filters,
       userType: 'PLAYER' as const,
    };
-   
+
    return useQuery({
       queryKey: playersKeys.list(playerFilters),
       queryFn: () => usersApi.getUsers(playerFilters),
@@ -56,7 +56,7 @@ export const usePlayerTransactions = (playerId: string, filters: any = {}) => {
       userId: playerId,
       userType: 'PLAYER' as const,
    };
-   
+
    return useQuery({
       queryKey: playersKeys.transactions(playerId, filters),
       queryFn: () => transactionsApi.getTransactions(transactionFilters),
@@ -109,21 +109,24 @@ export const useSendBalanceToPlayer = () => {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: ({ 
-         fromUserId, 
-         fromUserType, 
-         playerId, 
-         amount, 
-         description 
+      mutationFn: ({
+         currentUserId,
+         currentUserType,
+         isSuperAdmin,
+         playerId,
+         amount,
+         description
       }: {
-         fromUserId: string;
-         fromUserType: 'BACKOFFICE' | 'PLAYER';
+         currentUserId: string;
+         currentUserType: 'BACKOFFICE' | 'PLAYER';
+         isSuperAdmin: boolean;
          playerId: string;
          amount: number;
          description: string;
-      }) => transactionsApi.sendBalance(
-         fromUserId,
-         fromUserType,
+      }) => transactionsApi.depositFunds(
+         currentUserId,
+         currentUserType,
+         isSuperAdmin,
          playerId,
          'PLAYER',
          amount,
@@ -146,21 +149,21 @@ export const useRemoveBalanceFromPlayer = () => {
    const queryClient = useQueryClient();
 
    return useMutation({
-      mutationFn: ({ 
-         fromUserId, 
-         fromUserType, 
-         playerId, 
-         amount, 
-         description 
+      mutationFn: ({
+         currentUserId,
+         currentUserType,
+         playerId,
+         amount,
+         description
       }: {
-         fromUserId: string;
-         fromUserType: 'BACKOFFICE' | 'PLAYER';
+         currentUserId: string;
+         currentUserType: 'BACKOFFICE' | 'PLAYER';
          playerId: string;
          amount: number;
          description: string;
-      }) => transactionsApi.removeBalance(
-         fromUserId,
-         fromUserType,
+      }) => transactionsApi.withdrawFunds(
+         currentUserId,
+         currentUserType,
          playerId,
          'PLAYER',
          amount,

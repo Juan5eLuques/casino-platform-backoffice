@@ -24,8 +24,8 @@ interface UIActions {
 type UIStore = UIState & UIActions;
 
 export const useUIStore = create<UIStore>((set, get) => ({
-   // State
-   sidebarCollapsed: false,
+   // State - Sidebar cerrado por defecto en mobile
+   sidebarCollapsed: typeof window !== 'undefined' ? window.innerWidth < 1024 : true,
    darkMode: localStorage.getItem('darkMode') === 'true',
    notifications: [],
    searchOpen: false,
