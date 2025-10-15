@@ -6,15 +6,26 @@ Configurar CORS en el backend para permitir que el frontend deployado pueda hace
 
 ---
 
+## ⚠️ PROBLEMA ACTUAL: Cookies no se envían en producción
+
+**El frontend en Netlify/Vercel NO está enviando las cookies al backend en Railway** porque:
+1. Las cookies no se envían automáticamente en peticiones **cross-origin** (diferentes dominios)
+2. El backend debe configurar las cookies con `SameSite=None` y `Secure=true`
+3. El backend debe permitir credenciales en CORS con `AllowCredentials()`
+
+---
+
 ## 📋 Requisitos CRÍTICOS
 
 Para que el sistema funcione en producción, el backend **DEBE**:
 
 1. ✅ Permitir el origen del frontend en CORS
-2. ✅ Tener `AllowCredentials = true` (para cookies HttpOnly)
-3. ✅ Permitir headers: `Content-Type`, `Authorization`
-4. ✅ Permitir métodos: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`
-5. ✅ Usar HTTPS (obligatorio para cookies con `Secure` flag)
+2. ✅ Tener `AllowCredentials = true` (para cookies HttpOnly) - **CRÍTICO**
+3. ✅ Configurar cookies con `SameSite=None` y `Secure=true` - **CRÍTICO**
+4. ✅ Permitir headers: `Content-Type`, `Authorization`
+5. ✅ Permitir métodos: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`
+6. ✅ Usar HTTPS (obligatorio para cookies con `Secure` flag)
+7. ✅ Exponer header `Set-Cookie` al navegador
 
 ---
 
@@ -55,7 +66,8 @@ builder.Services.AddCors(options =>
             .WithOrigins(allowedOrigins)           // ✅ Origins específicos
             .AllowAnyMethod()                      // ✅ Todos los métodos HTTP
             .AllowAnyHeader()                      // ✅ Todos los headers
-            .AllowCredentials()                    // ✅ CRÍTICO: permite cookies
+            .AllowCredentials()                    // ✅ CRÍTICO: permite cookies cross-origin
+            .WithExposedHeaders("Set-Cookie")      // ✅ CRÍTICO: expone cookie al navegador
             .SetIsOriginAllowed(origin =>          // ✅ Validación custom (opcional)
             {
                 // Log para debugging
@@ -102,13 +114,13 @@ public class AuthController : ControllerBase
 
         var token = GenerateJwtToken(user);
 
-        // 📌 Configurar cookie con las opciones correctas
+        // 📌 Configurar cookie con las opciones correctas para CROSS-ORIGIN
         var cookieOptions = new CookieOptions
         {
-            HttpOnly = true,           // ✅ No accesible desde JavaScript
-            Secure = true,             // ✅ Solo HTTPS (CRÍTICO en producción)
-            SameSite = SameSiteMode.None, // ✅ Permite cross-origin (CRÍTICO)
-            Domain = Configuration["COOKIE_DOMAIN"], // ej: ".tudominio.com"
+            HttpOnly = true,                      // ✅ No accesible desde JavaScript
+            Secure = true,                        // ✅ Solo HTTPS (CRÍTICO en producción)
+            SameSite = SameSiteMode.None,         // ✅ CRÍTICO: permite cross-origin
+            Domain = null,                        // ✅ NO especificar dominio para cross-origin
             Path = "/",
             MaxAge = TimeSpan.FromDays(7),
             IsEssential = true

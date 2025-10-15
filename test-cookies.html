@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Cookies Cross-Origin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        h1 { color: #4CAF50; }
+        h2 { color: #2196F3; margin-top: 30px; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #45a049; }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .result {
+            background: #333;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            border-left-color: #f44336;
+            color: #ff6b6b;
+        }
+        .success {
+            border-left-color: #4CAF50;
+            color: #69f0ae;
+        }
+        .warning {
+            border-left-color: #ff9800;
+            color: #ffd54f;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #333;
+            border: 1px solid #555;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍪 Test de Cookies Cross-Origin</h1>
+        <p>Este test verifica si las cookies se envían correctamente en peticiones cross-origin.</p>
+
+        <h2>⚙️ Configuración</h2>
+        <label>URL del API (backend):</label>
+        <input type="text" id="apiUrl" value="https://casino-platform-production.up.railway.app/api/v1" />
+
+        <label>Endpoint de login:</label>
+        <input type="text" id="loginEndpoint" value="/auth/login" />
+
+        <label>Endpoint de verificación:</label>
+        <input type="text" id="meEndpoint" value="/auth/me" />
+
+        <h2>🧪 Tests</h2>
+        <button onclick="testCookieStorage()">1. Verificar Cookies Almacenadas</button>
+        <button onclick="testCORS()">2. Test CORS Preflight</button>
+        <button onclick="testLogin()">3. Test Login (simular)</button>
+        <button onclick="testMeEndpoint()">4. Test /me (verificar envío de cookie)</button>
+        <button onclick="clearResults()">🗑️ Limpiar Resultados</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        function log(message, type = 'result') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+            console.log(message);
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value;
+        }
+
+        function testCookieStorage() {
+            log('═══════════════════════════════════════', 'result');
+            log('🍪 TEST 1: Verificar Cookies Almacenadas', 'success');
+            log('═══════════════════════════════════════\n', 'result');
+
+            const cookies = document.cookie;
+            
+            if (!cookies) {
+                log('⚠️ NO HAY COOKIES visibles desde JavaScript', 'warning');
+                log('Esto es NORMAL si las cookies son HttpOnly.', 'result');
+                log('\n📋 INSTRUCCIONES:', 'result');
+                log('1. Abre DevTools (F12)', 'result');
+                log('2. Ve a: Application → Cookies → ' + window.location.hostname, 'result');
+                log('3. Verifica si existe una cookie llamada "jwt" o "auth_token"', 'result');
+                log('\n✅ Si ves la cookie: El problema es que NO SE ENVÍA', 'success');
+                log('❌ Si NO ves la cookie: El problema es que NO SE GUARDÓ', 'error');
+            } else {
+                log('✅ Cookies visibles:', 'success');
+                log(cookies, 'result');
+            }
+        }
+
+        async function testCORS() {
+            log('\n═══════════════════════════════════════', 'result');
+            log('🌐 TEST 2: CORS Preflight', 'success');
+            log('═══════════════════════════════════════\n', 'result');
+
+            const apiUrl = getApiUrl();
+            const meEndpoint = document.getElementById('meEndpoint').value;
+            const url = apiUrl + meEndpoint;
+
+            try {
+                log('🔗 URL: ' + url, 'result');
+                log('📤 Enviando OPTIONS request...\n', 'result');
+
+                const response = await fetch(url, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'content-type'
+                    }
+                });
+
+                log('Status: ' + response.status, response.ok ? 'success' : 'error');
+                
+                const allowOrigin = response.headers.get('Access-Control-Allow-Origin');
+                const allowCredentials = response.headers.get('Access-Control-Allow-Credentials');
+                const allowMethods = response.headers.get('Access-Control-Allow-Methods');
+                const allowHeaders = response.headers.get('Access-Control-Allow-Headers');
+
+                log('\n📋 Response Headers:', 'result');
+                log('Access-Control-Allow-Origin: ' + (allowOrigin || '❌ NO PRESENTE'), allowOrigin ? 'success' : 'error');
+                log('Access-Control-Allow-Credentials: ' + (allowCredentials || '❌ NO PRESENTE'), allowCredentials === 'true' ? 'success' : 'error');
+                log('Access-Control-Allow-Methods: ' + (allowMethods || '❌ NO PRESENTE'), 'result');
+                log('Access-Control-Allow-Headers: ' + (allowHeaders || '❌ NO PRESENTE'), 'result');
+
+                if (!allowCredentials || allowCredentials !== 'true') {
+                    log('\n❌ PROBLEMA DETECTADO:', 'error');
+                    log('El backend NO está permitiendo credenciales (cookies).', 'error');
+                    log('Solución: Agregar .AllowCredentials() en la configuración de CORS del backend.', 'warning');
+                }
+
+                if (!allowOrigin || (allowOrigin !== '*' && allowOrigin !== window.location.origin)) {
+                    log('\n❌ PROBLEMA DETECTADO:', 'error');
+                    log('El origen actual NO está permitido en CORS.', 'error');
+                    log('Origen actual: ' + window.location.origin, 'result');
+                    log('Origen permitido: ' + allowOrigin, 'result');
+                    log('Solución: Agregar "' + window.location.origin + '" a ALLOWED_ORIGINS en el backend.', 'warning');
+                }
+
+            } catch (error) {
+                log('❌ Error en OPTIONS request:', 'error');
+                log(error.message, 'error');
+            }
+        }
+
+        async function testLogin() {
+            log('\n═══════════════════════════════════════', 'result');
+            log('🔐 TEST 3: Login (Simulación)', 'success');
+            log('═══════════════════════════════════════\n', 'result');
+
+            const apiUrl = getApiUrl();
+            const loginEndpoint = document.getElementById('loginEndpoint').value;
+            const url = apiUrl + loginEndpoint;
+
+            log('⚠️ Este test requiere credenciales válidas.', 'warning');
+            log('Por ahora, solo verifica la configuración de CORS.\n', 'warning');
+
+            log('📋 INSTRUCCIONES PARA VERIFICAR MANUALMENTE:', 'result');
+            log('1. Haz login en tu aplicación', 'result');
+            log('2. Abre DevTools → Network', 'result');
+            log('3. Busca la petición POST ' + loginEndpoint, 'result');
+            log('4. En la pestaña "Headers" → "Response Headers", verifica:', 'result');
+            log('   - Set-Cookie: jwt=...; Path=/; HttpOnly; Secure; SameSite=None', 'result');
+            log('   - Access-Control-Allow-Credentials: true', 'result');
+            log('   - Access-Control-Allow-Origin: ' + window.location.origin, 'result');
+            log('\n✅ Si ves estos headers: El backend está configurado correctamente', 'success');
+            log('❌ Si NO ves Set-Cookie: El backend NO está enviando la cookie', 'error');
+            log('❌ Si NO ves Allow-Credentials: true: El backend NO permite cookies cross-origin', 'error');
+        }
+
+        async function testMeEndpoint() {
+            log('\n═══════════════════════════════════════', 'result');
+            log('👤 TEST 4: /me Endpoint (Verificar envío de cookie)', 'success');
+            log('═══════════════════════════════════════\n', 'result');
+
+            const apiUrl = getApiUrl();
+            const meEndpoint = document.getElementById('meEndpoint').value;
+            const url = apiUrl + meEndpoint;
+
+            try {
+                log('🔗 URL: ' + url, 'result');
+                log('📤 Enviando GET request con credentials: "include"...\n', 'result');
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    credentials: 'include', // ← CRÍTICO: equivalente a withCredentials
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                log('Status: ' + response.status + ' ' + response.statusText, response.ok ? 'success' : 'error');
+
+                const allowOrigin = response.headers.get('Access-Control-Allow-Origin');
+                const allowCredentials = response.headers.get('Access-Control-Allow-Credentials');
+
+                log('\n📋 Response Headers:', 'result');
+                log('Access-Control-Allow-Origin: ' + (allowOrigin || '❌ NO PRESENTE'), allowOrigin ? 'success' : 'error');
+                log('Access-Control-Allow-Credentials: ' + (allowCredentials || '❌ NO PRESENTE'), allowCredentials === 'true' ? 'success' : 'error');
+
+                if (response.status === 401) {
+                    log('\n⚠️ Status 401 Unauthorized - Posibles causas:', 'warning');
+                    log('1. No hay sesión activa (no has hecho login)', 'result');
+                    log('2. La cookie NO se está enviando en la request', 'result');
+                    log('3. La cookie expiró', 'result');
+                    log('\n📋 Para verificar si la cookie se envió:', 'result');
+                    log('1. Abre DevTools → Network', 'result');
+                    log('2. Busca la petición GET ' + meEndpoint, 'result');
+                    log('3. En "Request Headers", verifica si existe "Cookie: jwt=..."', 'result');
+                    log('\n✅ Si ves el header Cookie: La cookie SÍ se envió (problema de backend)', 'success');
+                    log('❌ Si NO ves el header Cookie: La cookie NO se envió (problema de frontend o backend CORS)', 'error');
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('\n✅ Respuesta exitosa:', 'success');
+                    log(JSON.stringify(data, null, 2), 'result');
+                    log('\n🎉 La cookie se envió correctamente!', 'success');
+                } else {
+                    const text = await response.text();
+                    log('\n❌ Respuesta de error:', 'error');
+                    log(text, 'error');
+                }
+
+            } catch (error) {
+                log('\n❌ Error en la petición:', 'error');
+                log(error.message, 'error');
+                
+                if (error.message.includes('CORS')) {
+                    log('\n🔥 ERROR DE CORS DETECTADO', 'error');
+                    log('Solución:', 'warning');
+                    log('1. Verifica que el backend tenga configurado CORS correctamente', 'result');
+                    log('2. Agrega este origen a ALLOWED_ORIGINS: ' + window.location.origin, 'result');
+                    log('3. Asegúrate de que .AllowCredentials() esté configurado', 'result');
+                }
+            }
+        }
+
+        // Auto-ejecutar test de cookies al cargar
+        window.addEventListener('load', () => {
+            log('🚀 Test de Cookies Cross-Origin iniciado', 'success');
+            log('Frontend URL: ' + window.location.origin, 'result');
+            log('Backend URL: ' + getApiUrl() + '\n', 'result');
+        });
+    </script>
+</body>
+</html>

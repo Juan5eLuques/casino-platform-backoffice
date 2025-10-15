@@ -1,6 +1,12 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  
+  # Variables de entorno para el build
+  [build.environment]
+    VITE_API_BASE_URL = "https://casino-platform-production.up.railway.app/api/v1"
+    VITE_NODE_ENV = "production"
+    VITE_ENABLE_API_LOGGING = "false"
 
 # Redirects for SPA (Single Page Application)
 [[redirects]]
