@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, User, Crown, Shield, UserCheck, Edit, Trash2, Minus } from 'lucide-react';
+import { Plus, Search, User, Crown, Shield, UserCheck, Edit, Trash2, Minus, Network, ChevronDown } from 'lucide-react';
 import { FilterButtonGroup } from '@/components/FilterButtonGroup';
+import { UserTree } from '@/components/UserTree';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,7 +19,8 @@ import {
    useDepositFunds,
    useWithdrawFunds
 } from '@/hooks';
-import type { CreateUserForm } from '@/types';// Schema para crear usuarios según API unificada
+import { treeApi } from '@/api';
+import type { CreateUserForm, UserTreeNode } from '@/types';// Schema para crear usuarios según API unificada
 const createUserSchema = z.object({
    username: z.string().min(3, 'El username debe tener al menos 3 caracteres'),
    password: z.string().optional(),
@@ -174,6 +176,12 @@ export function UsersPage() {
    const [page, setPage] = useState(1);
    const [pageSize] = useState(20);
 
+   // Estados para el árbol genealógico
+   const [showTree, setShowTree] = useState(false);
+   const [treeData, setTreeData] = useState<UserTreeNode | null>(null);
+   const [isLoadingTree, setIsLoadingTree] = useState(false);
+   const [treeCache, setTreeCache] = useState<Map<string, UserTreeNode>>(new Map());
+
    // Query unificada para todos los usuarios - Sin filtros iniciales
    const { data: usersData, isLoading } = useUsers({
       username: search || undefined,
@@ -255,6 +263,90 @@ export function UsersPage() {
          setSelectedUser(null);
       } catch (error) {
          console.error('Error in balance operation:', error);
+      }
+   };
+
+   // Funciones para manejar el árbol genealógico
+   const loadUserTree = async (userId: string) => {
+      setIsLoadingTree(true);
+      try {
+         const response = await treeApi.getUserTree({
+            userId,
+            maxDepth: 1,
+            includeInactive: false,
+         });
+
+         if (response && response.tree) {
+            setTreeData(response.tree);
+            // Cachear el nodo raíz
+            setTreeCache(prev => new Map(prev).set(userId, response.tree));
+         }
+      } catch (error) {
+         console.error('Error loading user tree:', error);
+      } finally {
+         setIsLoadingTree(false);
+      }
+   };
+
+   const loadChildren = async (userId: string) => {
+      // Si ya está en caché, no hacemos nada
+      if (treeCache.has(userId)) {
+         return;
+      }
+
+      setIsLoadingTree(true);
+      try {
+         const response = await treeApi.getUserTree({
+            userId,
+            maxDepth: 1,
+            includeInactive: false,
+         });
+
+         if (response && response.tree) {
+            // Actualizar el árbol existente con los nuevos hijos
+            setTreeData(prevTree => {
+               if (!prevTree) return prevTree;
+               return updateTreeNode(prevTree, userId, response.tree.children || []);
+            });
+
+            // Cachear el nodo
+            setTreeCache(prev => new Map(prev).set(userId, response.tree));
+         }
+      } catch (error) {
+         console.error('Error loading children:', error);
+      } finally {
+         setIsLoadingTree(false);
+      }
+   };
+
+   // Función recursiva para actualizar un nodo en el árbol
+   const updateTreeNode = (
+      node: UserTreeNode,
+      targetId: string,
+      newChildren: UserTreeNode[]
+   ): UserTreeNode => {
+      if (node.id === targetId) {
+         return { ...node, children: newChildren };
+      }
+
+      if (node.children) {
+         return {
+            ...node,
+            children: node.children.map(child => updateTreeNode(child, targetId, newChildren)),
+         };
+      }
+
+      return node;
+   };
+
+   // Cargar el árbol del usuario actual al montar el componente
+   const handleToggleTree = async () => {
+      const newShowState = !showTree;
+      setShowTree(newShowState);
+      
+      // Si se está mostrando y no hay datos, cargar automáticamente
+      if (newShowState && !treeData && currentUser) {
+         await loadUserTree(currentUser.id);
       }
    };
 
@@ -405,6 +497,58 @@ export function UsersPage() {
                   </button>
                </PermissionGuard>
             </div>
+         </div>
+
+         {/* Árbol Genealógico - Sección colapsable más compacta */}
+         <div className="bg-white dark:bg-dark-bg-secondary p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                     <Network className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                        Árbol Genealógico
+                     </h3>
+                     <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Tu red de usuarios
+                     </p>
+                  </div>
+               </div>
+               <button
+                  onClick={handleToggleTree}
+                  className="px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors flex items-center gap-1.5"
+               >
+                  {showTree ? 'Ocultar' : 'Mostrar'}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showTree ? 'rotate-180' : ''}`} />
+               </button>
+            </div>
+
+            {showTree && (
+               <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  {isLoadingTree && !treeData && (
+                     <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-3 border-gray-300 border-t-blue-600"></div>
+                     </div>
+                  )}
+
+                  {treeData && (
+                     <UserTree
+                        rootNode={treeData}
+                        onLoadChildren={loadChildren}
+                        isLoading={isLoadingTree}
+                     />
+                  )}
+
+                  {!treeData && !isLoadingTree && (
+                     <div className="text-center py-6">
+                        <p className="text-gray-500 dark:text-gray-400 text-xs">
+                           No se pudo cargar el árbol genealógico
+                        </p>
+                     </div>
+                  )}
+               </div>
+            )}
          </div>
 
          {/* Filtros - Responsive y con Dark Mode */}

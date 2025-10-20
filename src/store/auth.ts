@@ -54,7 +54,8 @@ export const useAuthStore = create<AuthStore>()(
                });
 
                // Load available brands after successful login
-               await get().loadBrands();
+               // TODO: Descomentar cuando se necesite funcionalidad de brands
+               // await get().loadBrands();
             } catch (error) {
                const errorMessage = error instanceof Error ? error.message : 'Error de login';
                set({
@@ -96,7 +97,8 @@ export const useAuthStore = create<AuthStore>()(
                });
 
                // Load brands after loading user
-               await get().loadBrands();
+               // TODO: Descomentar cuando se necesite funcionalidad de brands
+               // await get().loadBrands();
             } catch (error: any) {
                // Solo mostrar error si no es 401 (no autenticado es esperado)
                if (error.response?.status !== 401) {
@@ -147,7 +149,8 @@ export const useAuthStore = create<AuthStore>()(
                });
 
                // Load available brands after successful session check
-               await get().loadBrands();
+               // TODO: Descomentar cuando se necesite funcionalidad de brands
+               // await get().loadBrands();
             } catch (error) {
                // Si falla, limpiar el estado de autenticación
                set({

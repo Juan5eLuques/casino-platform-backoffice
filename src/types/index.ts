@@ -472,3 +472,37 @@ export interface Notification {
    createdAt: string;
    read: boolean;
 }
+
+// User Tree types
+export enum UserType {
+   BACKOFFICE = 'BACKOFFICE',
+   PLAYER = 'PLAYER',
+}
+
+export interface UserTreeNode {
+   id: string;
+   username: string;
+   userType: UserType;
+   role: BackofficeRole | null;
+   status: EntityStatus;
+   createdAt: string;
+   balance: number;
+   commissionPercent: number | null;
+   hasChildren: boolean;
+   directChildrenCount: number;
+   children: UserTreeNode[] | null;
+}
+
+export interface UserTreeResponse {
+   rootUserId: string;
+   rootUsername: string;
+   rootUserType: UserType;
+   role: BackofficeRole | null;
+   tree: UserTreeNode;
+}
+
+export interface UserTreeParams {
+   userId: string;
+   maxDepth?: number;
+   includeInactive?: boolean;
+}

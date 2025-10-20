@@ -8,4 +8,5 @@ export { operatorsApi } from './operators';
 export { gamesApi } from './games';
 export { assignmentsApi } from './assignments';
 export { dashboardApi } from './dashboard';
+export { treeApi } from './tree';
 export { apiClient } from './client';
