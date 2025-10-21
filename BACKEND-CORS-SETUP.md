@@ -2,16 +2,25 @@
 
 ## 🎯 Objetivo
 
-Configurar CORS en el backend para permitir que el frontend deployado pueda hacer peticiones al API con credenciales (cookies).
+Configurar CORS en el backend para permitir que el frontend deployado pueda hacer peticiones al API con credenciales (cookies) usando **SameSite=Lax** para mejor aislamiento multi-brand.
 
 ---
 
-## ⚠️ PROBLEMA ACTUAL: Cookies no se envían en producción
+## ⚠️ CAMBIO IMPORTANTE: SameSite=Lax
 
-**El frontend en Netlify/Vercel NO está enviando las cookies al backend en Railway** porque:
-1. Las cookies no se envían automáticamente en peticiones **cross-origin** (diferentes dominios)
-2. El backend debe configurar las cookies con `SameSite=None` y `Secure=true`
-3. El backend debe permitir credenciales en CORS con `AllowCredentials()`
+**ACTUALIZACIÓN:** El backend ahora usa `SameSite=Lax` en lugar de `SameSite=None` para mejor aislamiento de sesiones multi-brand.
+
+### Implicaciones:
+
+1. ✅ **Same-Origin**: Frontend y Backend deben estar en el **mismo dominio base**
+   - ✅ Correcto: `https://sitea.com` → `https://api.sitea.com`
+   - ❌ Incorrecto: `https://sitea.com` → `https://api.siteb.com`
+
+2. ✅ **Cookies Aisladas**: Cada brand tiene su cookie independiente
+   - `sitea.com` → Cookie con `Domain=.sitea.com`
+   - `siteb.com` → Cookie con `Domain=.siteb.com`
+
+3. ✅ **Mayor Seguridad**: Protección mejorada contra CSRF
 
 ---
 
@@ -21,11 +30,12 @@ Para que el sistema funcione en producción, el backend **DEBE**:
 
 1. ✅ Permitir el origen del frontend en CORS
 2. ✅ Tener `AllowCredentials = true` (para cookies HttpOnly) - **CRÍTICO**
-3. ✅ Configurar cookies con `SameSite=None` y `Secure=true` - **CRÍTICO**
-4. ✅ Permitir headers: `Content-Type`, `Authorization`
-5. ✅ Permitir métodos: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`
-6. ✅ Usar HTTPS (obligatorio para cookies con `Secure` flag)
-7. ✅ Exponer header `Set-Cookie` al navegador
+3. ✅ Configurar cookies con `SameSite=Lax` y `Secure=true` - **ACTUALIZADO**
+4. ✅ Configurar `Domain` específico por brand en producción - **NUEVO**
+5. ✅ Validar brand en login (403 si no corresponde) - **NUEVO**
+6. ✅ Permitir headers: `Content-Type`, `Authorization`
+7. ✅ Permitir métodos: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`
+8. ✅ Usar HTTPS (obligatorio para cookies con `Secure` flag)
 
 ---
 
@@ -54,7 +64,7 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 // 📌 1. Leer origins permitidos desde configuración
-var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') 
+var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',')
     ?? new[] { "http://localhost:5173" };
 
 // 📌 2. Configurar CORS
@@ -114,13 +124,13 @@ public class AuthController : ControllerBase
 
         var token = GenerateJwtToken(user);
 
-        // 📌 Configurar cookie con las opciones correctas para CROSS-ORIGIN
+        // 📌 NUEVA CONFIGURACIÓN: Cookies específicas por brand con SameSite=Lax
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,                      // ✅ No accesible desde JavaScript
             Secure = true,                        // ✅ Solo HTTPS (CRÍTICO en producción)
-            SameSite = SameSiteMode.None,         // ✅ CRÍTICO: permite cross-origin
-            Domain = null,                        // ✅ NO especificar dominio para cross-origin
+            SameSite = SameSiteMode.Lax,          // ✅ NUEVO: Lax para mejor seguridad multi-brand
+            Domain = GetBrandDomain(),            // ✅ NUEVO: Domain específico por brand (sitea.com, siteb.com)
             Path = "/",
             MaxAge = TimeSpan.FromDays(7),
             IsEssential = true
@@ -139,8 +149,8 @@ public class AuthController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
-            Domain = Configuration["COOKIE_DOMAIN"],
+            SameSite = SameSiteMode.Lax,          // ✅ NUEVO: Lax
+            Domain = GetBrandDomain(),            // ✅ NUEVO: Domain específico por brand
             Path = "/",
             MaxAge = TimeSpan.FromDays(-1) // Expirar inmediatamente
         };
@@ -148,6 +158,18 @@ public class AuthController : ControllerBase
         Response.Cookies.Delete("auth_token", cookieOptions);
 
         return Ok(new { success = true });
+    }
+
+    // 📌 NUEVO: Helper para obtener domain del brand actual
+    private string GetBrandDomain()
+    {
+        var brand = HttpContext.Items["Brand"] as string; // Brand viene del middleware
+        return brand switch
+        {
+            "sitea" => "sitea.com",
+            "siteb" => "siteb.com",
+            _ => null // En desarrollo/localhost
+        };
     }
 }
 ```
@@ -179,9 +201,9 @@ app.add_middleware(
 @app.post("/api/v1/auth/login")
 async def login(response: Response, credentials: LoginRequest):
     # ... validación ...
-    
+
     token = create_jwt_token(user)
-    
+
     # Configurar cookie
     response.set_cookie(
         key="auth_token",
@@ -192,7 +214,7 @@ async def login(response: Response, credentials: LoginRequest):
         domain=".tudominio.com",
         max_age=604800,        # 7 días
     )
-    
+
     return {"success": True, "user": user_dict}
 ```
 
@@ -208,25 +230,29 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 // Leer origins desde variables de entorno
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
+const allowedOrigins = (
+  process.env.ALLOWED_ORIGINS || 'http://localhost:5173'
+).split(',');
 
 // Configurar CORS
-app.use(cors({
-  origin: function (origin, callback) {
-    // Permitir requests sin origin (ej: mobile apps, Postman)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log(`[CORS] Blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,           // Permite cookies
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Permitir requests sin origin (ej: mobile apps, Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.log(`[CORS] Blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // Permite cookies
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());
@@ -234,18 +260,18 @@ app.use(express.json());
 // Login endpoint
 app.post('/api/v1/auth/login', (req, res) => {
   // ... validación ...
-  
+
   const token = generateJwtToken(user);
-  
+
   // Configurar cookie
   res.cookie('auth_token', token, {
-    httpOnly: true,        // No accesible desde JS
-    secure: true,          // Solo HTTPS
-    sameSite: 'none',      // Cross-origin
+    httpOnly: true, // No accesible desde JS
+    secure: true, // Solo HTTPS
+    sameSite: 'none', // Cross-origin
     domain: '.tudominio.com',
-    maxAge: 604800000,     // 7 días en ms
+    maxAge: 604800000, // 7 días en ms
   });
-  
+
   res.json({ success: true, user: userDto });
 });
 
@@ -284,7 +310,7 @@ Abre la consola del navegador en tu app deployada:
 // Test de CORS
 fetch('https://casino-platform-production.up.railway.app/api/v1/health', {
   method: 'GET',
-  credentials: 'include',  // Incluir cookies
+  credentials: 'include', // Incluir cookies
 })
   .then(r => r.json())
   .then(data => console.log('✅ CORS funciona:', data))
@@ -295,7 +321,7 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/auth/login', {
   method: 'POST',
   credentials: 'include',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username: 'test', password: 'test123' })
+  body: JSON.stringify({ username: 'test', password: 'test123' }),
 })
   .then(r => r.json())
   .then(data => console.log('✅ Login funciona:', data))
@@ -322,6 +348,7 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/auth/login', {
 **Causa:** El backend no tiene configurado CORS o no incluye el origin del frontend.
 
 **Solución:**
+
 ```csharp
 // Agregar el origin del frontend a ALLOWED_ORIGINS
 ALLOWED_ORIGINS=http://localhost:5173,https://tu-app.vercel.app
@@ -332,21 +359,53 @@ ALLOWED_ORIGINS=http://localhost:5173,https://tu-app.vercel.app
 **Causa:** `AllowCredentials()` no está configurado en el backend.
 
 **Solución:**
+
 ```csharp
 corsBuilder.AllowCredentials();  // Agregar esta línea
 ```
 
-### Error 3: "Cookie blocked because SameSite=None requires Secure"
+### Error 3: "Cookie blocked because SameSite=Lax requires same-origin"
 
-**Causa:** Cookie con `SameSite=None` sin el flag `Secure=true`.
+**Causa:** Con `SameSite=Lax`, las cookies solo se envían en requests al mismo dominio (o subdominio).
 
-**Solución:**
-```csharp
-cookieOptions.Secure = true;     // Requiere HTTPS
-cookieOptions.SameSite = SameSiteMode.None;
+**Solución (Nueva Arquitectura Multi-Brand):**
+
+```bash
+# Opción 1: Frontend y Backend en mismo dominio/subdominio
+Frontend: https://app.sitea.com
+Backend:  https://api.sitea.com
+# ✅ Ambos en sitea.com - cookies funcionan
+
+# Opción 2: Configurar /etc/hosts en desarrollo
+# /etc/hosts (Linux/Mac) o C:\Windows\System32\drivers\etc\hosts (Windows)
+127.0.0.1 sitea.local
+127.0.0.1 siteb.local
+
+# Acceder a: http://sitea.local:5173
 ```
 
-### Error 4: "Mixed Content: The page at 'https://...' was loaded over HTTPS, but requested an insecure resource 'http://...'"
+**Ver más detalles en:** `MULTI-BRAND-FRONTEND-GUIDE.md`
+
+### Error 4: "brand_not_resolved" (Error 400)
+
+**Causa:** Backend no pudo determinar el brand del request (falta header `X-Brand` o cookie con domain).
+
+**Solución:**
+
+1. Verificar que frontend esté desplegado en dominio específico del brand (ej: `sitea.com`)
+2. En desarrollo local, usar `/etc/hosts` para mapear `sitea.local` → `127.0.0.1`
+3. Backend debería resolver brand automáticamente desde el dominio
+
+### Error 5: "Forbidden: Brand mismatch" (Error 403)
+
+**Causa:** Usuario intentando hacer login en brand incorrecto (ej: usuario de SiteA intentando login en SiteB).
+
+**Solución:**
+
+- Verificar que el usuario pertenezca al brand correcto en la base de datos
+- En desarrollo, asegurarse de acceder al dominio correcto (`sitea.local` vs `siteb.local`)
+
+### Error 6: "Mixed Content: The page at 'https://...' was loaded over HTTPS, but requested an insecure resource 'http://...'"
 
 **Causa:** Frontend en HTTPS intentando conectar a backend en HTTP.
 
@@ -372,24 +431,37 @@ Agregar logs en el backend para debugging:
 
 ---
 
-## 📝 Checklist de Configuración
+## 📝 Checklist de Configuración (Actualizado para Multi-Brand)
 
 ### Backend
-- [ ] Variable `ALLOWED_ORIGINS` configurada con el dominio del frontend
+
+- [ ] Variable `ALLOWED_ORIGINS` configurada con dominios del frontend por brand
 - [ ] `AllowCredentials()` habilitado en CORS
 - [ ] Cookie con `HttpOnly = true`
 - [ ] Cookie con `Secure = true` (en producción)
-- [ ] Cookie con `SameSite = None` (para cross-origin)
-- [ ] Cookie con `Domain` configurado correctamente
+- [ ] Cookie con `SameSite = Lax` (NUEVO - para aislamiento multi-brand)
+- [ ] Cookie con `Domain` específico por brand (ej: `sitea.com`, `siteb.com`)
+- [ ] Middleware de brand resolution implementado
+- [ ] Validación de brand en login (403 si mismatch)
 - [ ] HTTPS habilitado en producción
 
 ### Frontend
+
 - [ ] Variable `VITE_API_BASE_URL` apunta al backend correcto
 - [ ] `withCredentials: true` en axios config
 - [ ] Requests usan HTTPS
+- [ ] Frontend desplegado en dominios específicos por brand (ej: `app.sitea.com`)
+- [ ] Configuración `/etc/hosts` para desarrollo local (ver `MULTI-BRAND-FRONTEND-GUIDE.md`)
 - [ ] Dominio del frontend agregado a CORS en backend
 
+### Desarrollo Local
+
+- [ ] Archivo `/etc/hosts` configurado con `sitea.local` y `siteb.local`
+- [ ] Acceso mediante dominios locales (no usar `localhost` directamente)
+- [ ] Backend resuelve brand correctamente desde request headers/domain
+
 ### Testing
+
 - [ ] curl test de OPTIONS request funciona
 - [ ] Login desde el frontend funciona
 - [ ] Cookie `auth_token` se envía en requests subsecuentes

@@ -49,26 +49,26 @@ fetch(`${apiUrl}/admin/auth/me`, {
         'Content-Type': 'application/json'
     }
 })
-.then(response => {
-    console.log('   📥 Respuesta recibida:');
-    console.log('   Status:', response.status, response.statusText);
-    
-    if (response.status === 401) {
-        console.log('   ❌ 401 Unauthorized - La cookie NO se envió o el token es inválido\n');
-    } else if (response.ok) {
-        console.log('   ✅ Respuesta exitosa - La cookie SÍ se envió\n');
-    }
-    
-    return response.json();
-})
-.then(data => {
-    console.log('   📄 Data:', data);
-    console.log('');
-})
-.catch(error => {
-    console.error('   ❌ Error:', error.message);
-    console.log('');
-});
+    .then(response => {
+        console.log('   📥 Respuesta recibida:');
+        console.log('   Status:', response.status, response.statusText);
+
+        if (response.status === 401) {
+            console.log('   ❌ 401 Unauthorized - La cookie NO se envió o el token es inválido\n');
+        } else if (response.ok) {
+            console.log('   ✅ Respuesta exitosa - La cookie SÍ se envió\n');
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        console.log('   📄 Data:', data);
+        console.log('');
+    })
+    .catch(error => {
+        console.error('   ❌ Error:', error.message);
+        console.log('');
+    });
 
 // 6. Instrucciones para verificar en Network tab
 console.log('🌐 6. Verificar en Network Tab:');

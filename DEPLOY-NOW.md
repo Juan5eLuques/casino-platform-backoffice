@@ -22,6 +22,7 @@ vercel --prod
 ```
 
 **Output esperado:**
+
 ```
 🔍  Inspect: https://vercel.com/...
 ✅  Production: https://casino-backoffice-xyz123.vercel.app
@@ -34,6 +35,7 @@ vercel --prod
 ## 🔧 PASO 2: Configurar CORS en el Backend
 
 ### 2.1 Ve a Railway Dashboard
+
 1. Abre: https://railway.app
 2. Login con tu cuenta
 3. Selecciona el proyecto: `casino-platform-production`
@@ -43,10 +45,12 @@ vercel --prod
 1. Click en el servicio del backend
 2. Variables → New Variable
 3. **Name:** `ALLOWED_ORIGINS`
-4. **Value:** 
+4. **Value:**
+
    ```
    http://localhost:5173,https://casino-backoffice-xyz123.vercel.app
    ```
+
    ⚠️ **Reemplaza** `casino-backoffice-xyz123.vercel.app` con **TU URL** del paso 1
 
 5. Click en **Add**
@@ -62,29 +66,32 @@ vercel --prod
 ## 🧪 PASO 3: Verificar el Deploy
 
 ### 3.1 Abrir la App
+
 1. Abre la URL de Vercel en el navegador
 2. La app debe cargar correctamente
 
 ### 3.2 Test de Conexión al API
+
 1. Abre DevTools (F12)
 2. Ve a la pestaña **Console**
 3. Ejecuta este código:
 
 ```javascript
 // Verificar configuración
-console.log('API URL:', import.meta.env.VITE_API_BASE_URL)
+console.log('API URL:', import.meta.env.VITE_API_BASE_URL);
 // Debe mostrar: https://casino-platform-production.up.railway.app/api/v1
 
 // Test de conexión
 fetch('https://casino-platform-production.up.railway.app/api/v1/health', {
-  credentials: 'include'
+  credentials: 'include',
 })
   .then(r => r.json())
   .then(data => console.log('✅ API funciona:', data))
-  .catch(err => console.error('❌ Error:', err))
+  .catch(err => console.error('❌ Error:', err));
 ```
 
 **Resultado esperado:**
+
 ```
 API URL: https://casino-platform-production.up.railway.app/api/v1
 ✅ API funciona: { status: "ok", ... }
@@ -117,11 +124,13 @@ API URL: https://casino-platform-production.up.railway.app/api/v1
 ### Error: CORS Policy Blocked
 
 **Síntoma en Console:**
+
 ```
 Access to fetch at 'https://...' has been blocked by CORS policy
 ```
 
 **Solución:**
+
 1. Ve a Railway Dashboard
 2. Verifica que `ALLOWED_ORIGINS` contenga la URL correcta de Vercel
 3. Asegúrate de que NO haya espacios ni caracteres extra
@@ -134,6 +143,7 @@ Access to fetch at 'https://...' has been blocked by CORS policy
 **Síntoma:** Login devuelve 401 o no funciona
 
 **Solución:**
+
 1. Verifica en Network → Headers → Response Headers:
    - Debe haber: `Access-Control-Allow-Origin: tu-dominio-vercel.app`
    - Debe haber: `Access-Control-Allow-Credentials: true`
@@ -148,6 +158,7 @@ Access to fetch at 'https://...' has been blocked by CORS policy
 **Síntoma:** `import.meta.env.VITE_API_BASE_URL` es `undefined`
 
 **Solución en Vercel:**
+
 1. Ve a: https://vercel.com/dashboard
 2. Selecciona tu proyecto
 3. Settings → Environment Variables
@@ -202,6 +213,7 @@ Si todos los puntos del checklist están marcados, ¡tu app está funcionando en
 ## 📞 ¿Necesitas Ayuda?
 
 Ver documentación completa:
+
 - `QUICK-DEPLOY.md` - Checklist detallado
 - `DEPLOYMENT-GUIDE.md` - Guía completa
 - `BACKEND-CORS-SETUP.md` - Configuración de CORS

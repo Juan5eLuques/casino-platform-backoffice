@@ -8,11 +8,11 @@ console.log('Frontend URL:', window.location.origin);
 console.log('\n📦 1. Cookies almacenadas:');
 const cookies = document.cookie;
 if (cookies) {
-    console.log('✅ Cookies visibles:', cookies);
+  console.log('✅ Cookies visibles:', cookies);
 } else {
-    console.log('⚠️ NO HAY COOKIES visibles (puede ser HttpOnly - es NORMAL)');
-    console.log('💡 Para verificar cookies HttpOnly:');
-    console.log('   DevTools → Application → Cookies → ' + window.location.hostname);
+  console.log('⚠️ NO HAY COOKIES visibles (puede ser HttpOnly - es NORMAL)');
+  console.log('💡 Para verificar cookies HttpOnly:');
+  console.log('   DevTools → Application → Cookies → ' + window.location.hostname);
 }
 
 // 2. Verificar configuración del entorno
@@ -37,29 +37,29 @@ fetch(`${API_URL}/auth/me`, {
     'Content-Type': 'application/json'
   }
 })
-.then(response => {
-  console.log('\n✅ Respuesta recibida:');
-  console.log('Status:', response.status);
-  console.log('Headers:', [...response.headers.entries()]);
-  
-  // Verificar si hay Set-Cookie
-  const setCookie = response.headers.get('Set-Cookie');
-  console.log('\nSet-Cookie header:', setCookie || 'NO PRESENTE');
-  
-  // Verificar CORS headers
-  console.log('\nCORS Headers:');
-  console.log('Access-Control-Allow-Origin:', response.headers.get('Access-Control-Allow-Origin'));
-  console.log('Access-Control-Allow-Credentials:', response.headers.get('Access-Control-Allow-Credentials'));
-  
-  return response.json();
-})
-.then(data => {
-  console.log('\n📄 Data:', data);
-})
-.catch(error => {
-  console.error('\n❌ Error:', error);
-  console.error('Detalles:', error.message);
-});
+  .then(response => {
+    console.log('\n✅ Respuesta recibida:');
+    console.log('Status:', response.status);
+    console.log('Headers:', [...response.headers.entries()]);
+
+    // Verificar si hay Set-Cookie
+    const setCookie = response.headers.get('Set-Cookie');
+    console.log('\nSet-Cookie header:', setCookie || 'NO PRESENTE');
+
+    // Verificar CORS headers
+    console.log('\nCORS Headers:');
+    console.log('Access-Control-Allow-Origin:', response.headers.get('Access-Control-Allow-Origin'));
+    console.log('Access-Control-Allow-Credentials:', response.headers.get('Access-Control-Allow-Credentials'));
+
+    return response.json();
+  })
+  .then(data => {
+    console.log('\n📄 Data:', data);
+  })
+  .catch(error => {
+    console.error('\n❌ Error:', error);
+    console.error('Detalles:', error.message);
+  });
 
 // 4. Información del entorno
 console.log('\n🌍 4. Información del entorno:');

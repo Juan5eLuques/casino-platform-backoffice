@@ -13,11 +13,11 @@ import type { AuditLog } from '@/types';
 export function AuditPage() {
    const { userId: userIdParam } = useParams<{ userId: string }>();
    const navigate = useNavigate();
-   
+
    const [activeTab, setActiveTab] = useState<'backoffice' | 'provider'>('backoffice');
    const [actionFilter, setActionFilter] = useState('');
    const [page, setPage] = useState(1);
-   
+
    // Filtros de fecha: por defecto, inicio y fin del mes actual
    const [fromDate, setFromDate] = useState<string>(
       format(startOfMonth(new Date()), 'yyyy-MM-dd')
@@ -131,8 +131,8 @@ export function AuditPage() {
                         </h1>
                      </div>
                      <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
-                        {userIdParam 
-                           ? `Mostrando registros del usuario: ${userIdParam}` 
+                        {userIdParam
+                           ? `Mostrando registros del usuario: ${userIdParam}`
                            : 'Visualiza el historial de acciones del sistema'}
                      </p>
                      {userIdParam && (
@@ -168,8 +168,8 @@ export function AuditPage() {
                         setPage(1);
                      }}
                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'backoffice'
-                           ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                        ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                         }`}
                   >
                      Backoffice
@@ -180,8 +180,8 @@ export function AuditPage() {
                         setPage(1);
                      }}
                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'provider'
-                           ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                        ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                         }`}
                   >
                      Providers

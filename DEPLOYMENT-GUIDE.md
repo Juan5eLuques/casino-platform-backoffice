@@ -22,16 +22,19 @@
 ### Opción 1: Vercel (Recomendado)
 
 #### 1. Instalar Vercel CLI
+
 ```bash
 npm install -g vercel
 ```
 
 #### 2. Login en Vercel
+
 ```bash
 vercel login
 ```
 
 #### 3. Deploy
+
 ```bash
 # Primer deploy (configuración inicial)
 vercel
@@ -41,6 +44,7 @@ vercel --prod
 ```
 
 #### 4. Configurar Variables de Entorno en Vercel Dashboard
+
 - Ve a: https://vercel.com/dashboard
 - Selecciona tu proyecto
 - Settings → Environment Variables
@@ -50,6 +54,7 @@ vercel --prod
   - `VITE_ENABLE_API_LOGGING` = `false`
 
 #### 5. Configurar Custom Domain (Opcional)
+
 - Settings → Domains
 - Agrega tu dominio (ej: `admin.tudominio.com`)
 
@@ -58,21 +63,25 @@ vercel --prod
 ### Opción 2: Netlify
 
 #### 1. Instalar Netlify CLI
+
 ```bash
 npm install -g netlify-cli
 ```
 
 #### 2. Login en Netlify
+
 ```bash
 netlify login
 ```
 
 #### 3. Build Local
+
 ```bash
 npm run build
 ```
 
 #### 4. Deploy
+
 ```bash
 # Primer deploy
 netlify deploy
@@ -82,6 +91,7 @@ netlify deploy --prod
 ```
 
 #### 5. Configurar Variables de Entorno
+
 ```bash
 # Desde CLI
 netlify env:set VITE_API_BASE_URL "https://casino-platform-production.up.railway.app/api/v1"
@@ -92,6 +102,7 @@ netlify env:set VITE_ENABLE_API_LOGGING "false"
 ```
 
 #### 6. Archivo `netlify.toml` (ya incluido)
+
 El proyecto ya tiene un archivo `netlify.toml` configurado.
 
 ---
@@ -99,21 +110,26 @@ El proyecto ya tiene un archivo `netlify.toml` configurado.
 ### Opción 3: Railway
 
 #### 1. Crear cuenta en Railway
+
 - Ir a: https://railway.app
 
 #### 2. Nuevo Proyecto
+
 - Click en "New Project"
 - Seleccionar "Deploy from GitHub repo"
 - Conectar el repositorio
 
 #### 3. Configurar Variables de Entorno
+
 En el dashboard de Railway:
+
 - Variables → Add Variable
   - `VITE_API_BASE_URL` = `https://casino-platform-production.up.railway.app/api/v1`
   - `VITE_NODE_ENV` = `production`
   - `VITE_ENABLE_API_LOGGING` = `false`
 
 #### 4. Configurar Build Settings
+
 - Build Command: `npm run build`
 - Start Command: `npx vite preview --port $PORT --host`
 
@@ -151,6 +167,7 @@ app.UseCors("AllowFrontend");
 ```
 
 **Variables de Entorno en el Backend:**
+
 ```bash
 ALLOWED_ORIGINS=http://localhost:5173,https://tu-app.vercel.app,https://admin.tudominio.com
 ```
@@ -160,19 +177,21 @@ ALLOWED_ORIGINS=http://localhost:5173,https://tu-app.vercel.app,https://admin.tu
 ## 🧪 Verificar el Deploy
 
 ### 1. Test de Conexión al API
+
 Una vez deployado, abre la consola del navegador en tu app y ejecuta:
 
 ```javascript
 // Ver la URL del API configurada
-console.log(import.meta.env.VITE_API_BASE_URL)
+console.log(import.meta.env.VITE_API_BASE_URL);
 
 // Probar conexión
 fetch('https://casino-platform-production.up.railway.app/api/v1/health')
   .then(r => r.json())
-  .then(console.log)
+  .then(console.log);
 ```
 
 ### 2. Test de Login
+
 - Ir a `/login`
 - Intentar login con credenciales válidas
 - Verificar en Network Tab:
@@ -183,12 +202,15 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/health')
 ### 3. Errores Comunes
 
 #### ❌ Error: CORS policy
+
 **Solución:** Agregar el dominio del frontend a los `ALLOWED_ORIGINS` del backend
 
 #### ❌ Error: 401 Unauthorized
+
 **Solución:** Verificar que las cookies se estén enviando (`withCredentials: true`)
 
 #### ❌ Error: Mixed Content (HTTP/HTTPS)
+
 **Solución:** Asegurar que tanto frontend como backend usen HTTPS
 
 ---
@@ -214,6 +236,7 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/health')
 ### Configurar Custom Domain
 
 #### En Vercel:
+
 1. Settings → Domains
 2. Add Domain
 3. Configurar DNS:
@@ -222,6 +245,7 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/health')
    - Value: `cname.vercel-dns.com`
 
 #### En Netlify:
+
 1. Domain settings → Add custom domain
 2. Configurar DNS:
    - Tipo: `CNAME`
@@ -233,6 +257,7 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/health')
 ## 🔐 Variables de Entorno
 
 ### Desarrollo (`.env`)
+
 ```bash
 VITE_API_BASE_URL=/api/v1
 VITE_API_ORIGIN=https://casino-platform-production.up.railway.app/
@@ -241,6 +266,7 @@ VITE_ENABLE_API_LOGGING=true
 ```
 
 ### Producción (`.env.production` o Platform Variables)
+
 ```bash
 VITE_API_BASE_URL=https://casino-platform-production.up.railway.app/api/v1
 VITE_NODE_ENV=production
@@ -263,9 +289,11 @@ VITE_ENABLE_API_LOGGING=false
 ## 📊 Monitoreo Post-Deploy
 
 ### Vercel Analytics
+
 Vercel proporciona analytics automáticamente.
 
 ### Logs
+
 ```bash
 # Vercel
 vercel logs [deployment-url]
@@ -275,7 +303,9 @@ netlify logs
 ```
 
 ### Errores en Producción
+
 Considera integrar:
+
 - **Sentry**: Error tracking
 - **LogRocket**: Session replay
 - **Datadog**: APM monitoring
@@ -285,6 +315,7 @@ Considera integrar:
 ## 🔄 Actualizar Deploy
 
 ### Vercel
+
 ```bash
 # Commit cambios
 git add .
@@ -297,6 +328,7 @@ vercel --prod
 ```
 
 ### Netlify
+
 ```bash
 # Auto-deploy en push, o manual:
 npm run build
@@ -308,11 +340,13 @@ netlify deploy --prod
 ## 📞 Soporte
 
 ### Recursos
+
 - [Vercel Docs](https://vercel.com/docs)
 - [Netlify Docs](https://docs.netlify.com)
 - [Vite Deploy Guide](https://vitejs.dev/guide/static-deploy.html)
 
 ### Errores Comunes
+
 Ver `TROUBLESHOOTING.md` para soluciones detalladas.
 
 ---

@@ -3,6 +3,7 @@
 ## ❌ PROBLEMA IDENTIFICADO
 
 **Las cookies NO se envían desde Netlify (producción) a Railway (API)**
+
 - ✅ En local funciona (porque ambos están en localhost)
 - ❌ En producción NO funciona (diferentes dominios)
 
@@ -11,11 +12,13 @@
 ## 🎯 Configuración Actual
 
 ### Frontend (Netlify)
+
 - ✅ `withCredentials: true` en axios ✅
 - ✅ Variable `VITE_API_BASE_URL` apunta a Railway ✅
 - ❌ **FALTA**: Variables de entorno en Netlify
 
 ### Backend (Railway)
+
 - ⚠️ **DESCONOCIDO**: Configuración de cookies
 - ⚠️ **DESCONOCIDO**: Configuración de CORS
 
@@ -26,6 +29,7 @@
 ### 1️⃣ Frontend - Netlify
 
 #### A. Variables de Entorno en Netlify
+
 **Estado:** ⚠️ VERIFICAR
 
 En el dashboard de Netlify → Site settings → Environment variables, debes tener:
@@ -37,6 +41,7 @@ VITE_ENABLE_API_LOGGING=false
 ```
 
 **Acción requerida:**
+
 1. Ve a: https://app.netlify.com/sites/[tu-site]/settings/deploys#environment
 2. Agrega las variables si no existen
 3. Haz un redeploy después de agregar las variables
@@ -44,17 +49,18 @@ VITE_ENABLE_API_LOGGING=false
 ---
 
 #### B. Código del Frontend
+
 **Estado:** ✅ CORRECTO
 
 ```typescript
 // src/api/client.ts
 export const apiClient = axios.create({
-   baseURL: API_BASE_URL,
-   withCredentials: true, // ✅ CORRECTO
-   headers: {
-      'Content-Type': 'application/json'
-   },
-   timeout: 10000,
+  baseURL: API_BASE_URL,
+  withCredentials: true, // ✅ CORRECTO
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000,
 });
 ```
 
@@ -63,6 +69,7 @@ export const apiClient = axios.create({
 ### 2️⃣ Backend - Railway
 
 #### A. Configuración de Cookies en el Login
+
 **Estado:** ⚠️ VERIFICAR
 
 El backend DEBE configurar las cookies así:
@@ -84,12 +91,14 @@ Response.Cookies.Append("jwt", token, cookieOptions);
 ```
 
 **Acción requerida:**
+
 - Verificar que el backend tenga `SameSite=None` y `Secure=true`
 - Si no lo tiene, actualizar el código del backend
 
 ---
 
 #### B. Configuración de CORS
+
 **Estado:** ⚠️ VERIFICAR
 
 El backend DEBE tener esta configuración:
@@ -119,6 +128,7 @@ app.UseAuthorization();
 ```
 
 **Acción requerida:**
+
 1. Verificar que `AllowCredentials()` esté presente
 2. Verificar que tu URL de Netlify esté en `WithOrigins()`
 3. Verificar que `WithExposedHeaders("Set-Cookie")` esté presente
@@ -126,6 +136,7 @@ app.UseAuthorization();
 ---
 
 #### C. Variables de Entorno en Railway
+
 **Estado:** ⚠️ VERIFICAR
 
 En Railway → Variables → Agregar:
@@ -137,6 +148,7 @@ COOKIE_SAMESITE=None
 ```
 
 **Acción requerida:**
+
 1. Ve a: https://railway.app/project/[tu-proyecto]/settings
 2. Agrega las variables si no existen
 3. Haz un redeploy después de agregar las variables
@@ -195,8 +207,10 @@ Cookie: jwt=eyJhbG...
 ## 🔥 PROBLEMAS COMUNES Y SOLUCIONES
 
 ### Problema 1: Cookie no se guarda después de login
+
 **Causa:** Falta `SameSite=None; Secure` en el backend
 **Solución:**
+
 ```csharp
 var cookieOptions = new CookieOptions
 {
@@ -208,8 +222,10 @@ var cookieOptions = new CookieOptions
 ---
 
 ### Problema 2: Error CORS al hacer login
+
 **Causa:** El origen de Netlify no está permitido en CORS
 **Solución:**
+
 ```csharp
 policy.WithOrigins("https://tu-app.netlify.app")  // ← Agregar tu URL
 ```
@@ -217,8 +233,10 @@ policy.WithOrigins("https://tu-app.netlify.app")  // ← Agregar tu URL
 ---
 
 ### Problema 3: Cookie se guarda pero no se envía
+
 **Causa:** Falta `AllowCredentials()` en CORS
 **Solución:**
+
 ```csharp
 policy.AllowCredentials()  // ← Agregar esto
 ```
@@ -226,8 +244,10 @@ policy.AllowCredentials()  // ← Agregar esto
 ---
 
 ### Problema 4: Variables de entorno no se aplican
+
 **Causa:** No se hizo redeploy después de agregar las variables
 **Solución:**
+
 1. Después de agregar variables en Netlify o Railway
 2. Hacer un **redeploy manual**
 3. Las variables solo se aplican en nuevos deploys
@@ -237,6 +257,7 @@ policy.AllowCredentials()  // ← Agregar esto
 ## 📋 CHECKLIST RÁPIDO
 
 Backend (Railway):
+
 - [ ] `SameSite = SameSiteMode.None` en cookies
 - [ ] `Secure = true` en cookies
 - [ ] `AllowCredentials()` en CORS
@@ -246,6 +267,7 @@ Backend (Railway):
 - [ ] Redeploy después de cambios
 
 Frontend (Netlify):
+
 - [ ] `withCredentials: true` en axios ✅
 - [ ] Variable `VITE_API_BASE_URL` configurada en Netlify
 - [ ] Redeploy después de agregar variables
@@ -275,6 +297,7 @@ Frontend (Netlify):
 ## 📞 ¿Necesitas ayuda?
 
 Si después de verificar todo esto sigue sin funcionar, comparte:
+
 1. Screenshot de los headers de la respuesta de login
 2. Screenshot de las cookies en Application tab
 3. Screenshot de los headers de la request de /me

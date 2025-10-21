@@ -26,12 +26,12 @@ interface TreeNodeProps {
    onToggleExpand: (nodeId: string) => void;
 }
 
-const TreeNodeComponent = ({ 
-   node, 
-   onNodeClick, 
-   isLoading, 
-   expandedNodes, 
-   onToggleExpand 
+const TreeNodeComponent = ({
+   node,
+   onNodeClick,
+   isLoading,
+   expandedNodes,
+   onToggleExpand
 }: TreeNodeProps) => {
    const isExpanded = expandedNodes.has(node.id);
    const hasLoadedChildren = node.children !== null;
@@ -151,13 +151,13 @@ const TreeNodeComponent = ({
                </div>
                <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-gray-500 dark:text-gray-400 flex-wrap">
                   <span className={getRoleColor(node.role)}>{getRoleLabel(node.role)}</span>
-                  
+
                   {/* Balance */}
                   <span>•</span>
                   <span className="flex items-center gap-0.5 font-medium text-green-600 dark:text-green-400">
                      {formatCurrency(node.balance)}
                   </span>
-                  
+
                   {/* Commission Percent si existe */}
                   {node.commissionPercent !== null && (
                      <>
@@ -167,7 +167,7 @@ const TreeNodeComponent = ({
                         </span>
                      </>
                   )}
-                  
+
                   {/* Contador de hijos */}
                   {node.hasChildren && (
                      <>

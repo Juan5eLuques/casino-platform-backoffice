@@ -9,11 +9,13 @@
 ### 1. Configuración de Entorno
 
 #### `.env.production`
+
 ```bash
 VITE_API_BASE_URL=https://casino-platform-production.up.railway.app/api/v1
 VITE_NODE_ENV=production
 VITE_ENABLE_API_LOGGING=false
 ```
+
 **Propósito:** Variables de entorno específicas para producción.
 
 ---
@@ -21,6 +23,7 @@ VITE_ENABLE_API_LOGGING=false
 ### 2. Configuración de Deployment
 
 #### `vercel.json` ⭐ NUEVO
+
 ```json
 {
   "buildCommand": "npm run build",
@@ -29,9 +32,11 @@ VITE_ENABLE_API_LOGGING=false
   "headers": [...]
 }
 ```
+
 **Propósito:** Configuración para deploy en Vercel con rewrites para SPA y headers de seguridad.
 
 #### `netlify.toml` ⭐ NUEVO
+
 ```toml
 [build]
   command = "npm run build"
@@ -42,6 +47,7 @@ VITE_ENABLE_API_LOGGING=false
   to = "/index.html"
   status = 200
 ```
+
 **Propósito:** Configuración para deploy en Netlify con redirects para SPA.
 
 ---
@@ -49,12 +55,14 @@ VITE_ENABLE_API_LOGGING=false
 ### 3. Scripts de Package.json
 
 #### Agregados:
+
 ```json
 "build:prod": "tsc && vite build --mode production",
 "preview:prod": "vite preview --port 5173 --mode production"
 ```
 
 **Uso:**
+
 - `npm run build:prod` - Build optimizado para producción
 - `npm run preview:prod` - Preview local del build de producción
 
@@ -63,17 +71,22 @@ VITE_ENABLE_API_LOGGING=false
 ### 4. Documentación
 
 #### `DEPLOYMENT-GUIDE.md` ⭐ NUEVO
+
 **Contenido:** Guía completa de deployment paso a paso para Vercel, Netlify y Railway.
 
 #### `BACKEND-CORS-SETUP.md` ⭐ NUEVO
-**Contenido:** 
+
+**Contenido:**
+
 - Configuración detallada de CORS para .NET, Python y Node.js
 - Ejemplos de código específicos
 - Troubleshooting de errores comunes
 - Testing de CORS
 
 #### `QUICK-DEPLOY.md` ⭐ ACTUALIZADO
+
 **Contenido:**
+
 - Checklist rápido de pre-deploy
 - Comandos de deployment
 - Post-deploy verification
@@ -97,6 +110,7 @@ vercel --prod
 ```
 
 **Después del deploy:**
+
 1. Anotar la URL deployada (ej: `https://casino-backoffice-xyz.vercel.app`)
 2. Agregar esa URL a `ALLOWED_ORIGINS` en el backend (Railway)
 3. Redeploy el backend
@@ -118,6 +132,7 @@ netlify deploy --prod
 ```
 
 **Configurar variables de entorno:**
+
 ```bash
 netlify env:set VITE_API_BASE_URL "https://casino-platform-production.up.railway.app/api/v1"
 netlify env:set VITE_NODE_ENV "production"
@@ -145,6 +160,7 @@ ALLOWED_ORIGINS=http://localhost:5173,https://[tu-app].vercel.app
 ## 📋 Checklist Pre-Deploy
 
 ### Frontend ✅
+
 - [x] `.env.production` configurado
 - [x] `vercel.json` creado
 - [x] `netlify.toml` creado
@@ -152,6 +168,7 @@ ALLOWED_ORIGINS=http://localhost:5173,https://[tu-app].vercel.app
 - [x] Scripts de deployment agregados a `package.json`
 
 ### Backend (PENDIENTE)
+
 - [ ] CORS configurado con `AllowCredentials = true`
 - [ ] Variable `ALLOWED_ORIGINS` lista para agregar dominio del frontend
 - [ ] Cookies configuradas: `Secure=true`, `SameSite=None`, `HttpOnly=true`
@@ -162,12 +179,14 @@ ALLOWED_ORIGINS=http://localhost:5173,https://[tu-app].vercel.app
 ## 🧪 Testing Post-Deploy
 
 ### 1. Test Básico
+
 ```bash
 # Verificar que el API responde
 curl https://casino-platform-production.up.railway.app/api/v1/health
 ```
 
 ### 2. Test de CORS
+
 ```bash
 curl -X OPTIONS \
   -H "Origin: https://[tu-app].vercel.app" \
@@ -177,17 +196,21 @@ curl -X OPTIONS \
 ```
 
 ### 3. Test desde el Frontend Deployado
+
 1. Abrir la app en el navegador
 2. Abrir DevTools (F12) → Console
 3. Ejecutar:
+
 ```javascript
 // Ver configuración
-console.log(import.meta.env.VITE_API_BASE_URL)
+console.log(import.meta.env.VITE_API_BASE_URL);
 
 // Test de conexión
 fetch('https://casino-platform-production.up.railway.app/api/v1/health', {
-  credentials: 'include'
-}).then(r => r.json()).then(console.log)
+  credentials: 'include',
+})
+  .then(r => r.json())
+  .then(console.log);
 ```
 
 ---
@@ -195,25 +218,31 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/health', {
 ## ❌ Problemas Comunes y Soluciones
 
 ### Error 1: CORS Policy Blocked
+
 **Síntoma:** `Access to fetch at '...' has been blocked by CORS policy`
 
 **Solución:**
+
 1. Agregar el dominio del frontend a `ALLOWED_ORIGINS` en el backend
 2. Redeploy el backend
 3. Verificar que el backend tenga `AllowCredentials = true`
 
 ### Error 2: 401 Unauthorized
+
 **Síntoma:** Todas las peticiones devuelven 401 después del login
 
 **Solución:**
+
 1. Verificar que las cookies tengan `Secure=true` (requiere HTTPS)
 2. Verificar que las cookies tengan `SameSite=None`
 3. Asegurar que el frontend use `withCredentials: true` (ya configurado)
 
 ### Error 3: Mixed Content
+
 **Síntoma:** `Mixed Content: The page was loaded over HTTPS, but requested an insecure resource`
 
 **Solución:**
+
 1. Verificar que `VITE_API_BASE_URL` use `https://` (no `http://`)
 2. Asegurar que el backend use HTTPS
 
@@ -222,6 +251,7 @@ fetch('https://casino-platform-production.up.railway.app/api/v1/health', {
 ## 📊 Estado del Proyecto
 
 ### Build Local ✅
+
 ```bash
 ✓ 2267 modules transformed.
 dist/index.html                   0.93 kB │ gzip:   0.51 kB
@@ -231,6 +261,7 @@ dist/assets/index-48012db2.js   593.76 kB │ gzip: 172.17 kB
 ```
 
 ### Backend API ✅
+
 - URL: `https://casino-platform-production.up.railway.app`
 - Estado: Funcionando
 - Pendiente: Configurar CORS con dominio del frontend
@@ -240,6 +271,7 @@ dist/assets/index-48012db2.js   593.76 kB │ gzip: 172.17 kB
 ## 🎯 Próximos Pasos
 
 1. **Deploy del Frontend**
+
    ```bash
    vercel --prod
    # o
@@ -280,6 +312,7 @@ dist/assets/index-48012db2.js   593.76 kB │ gzip: 172.17 kB
 Todo está configurado y listo para el deployment. Sigue los pasos en `QUICK-DEPLOY.md` para hacer el primer deploy.
 
 **Comando rápido:**
+
 ```bash
 vercel --prod
 ```

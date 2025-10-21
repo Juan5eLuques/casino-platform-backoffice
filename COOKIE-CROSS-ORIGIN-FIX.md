@@ -1,7 +1,9 @@
 # 🍪 Fix: Cookies Cross-Origin (Frontend en Netlify/Vercel → Backend en Railway)
 
 ## Problema
+
 Las cookies **NO se envían** cuando el frontend y backend están en dominios diferentes, porque:
+
 1. El navegador bloquea cookies cross-origin por defecto
 2. El backend no está configurando las cookies con los atributos necesarios
 
@@ -65,12 +67,12 @@ Tu `apiClient` ya tiene `withCredentials: true`, que es correcto:
 
 ```typescript
 export const apiClient = axios.create({
-   baseURL: API_BASE_URL,
-   withCredentials: true, // ✅ Ya configurado
-   headers: {
-      'Content-Type': 'application/json'
-   },
-   timeout: 10000,
+  baseURL: API_BASE_URL,
+  withCredentials: true, // ✅ Ya configurado
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000,
 });
 ```
 
@@ -98,14 +100,17 @@ Access-Control-Allow-Credentials: true
 ## ⚠️ Errores Comunes
 
 ### Error 1: Cookie no se guarda
+
 **Causa:** Falta `Secure=true` o `SameSite=None`
 **Solución:** Agregar ambos atributos en el backend
 
 ### Error 2: CORS error al hacer login
+
 **Causa:** Falta `AllowCredentials()` en CORS o el origen no está permitido
 **Solución:** Verificar configuración de CORS en el backend
 
 ### Error 3: Cookie se guarda pero no se envía en siguientes requests
+
 **Causa:** Falta `withCredentials: true` en Axios (ya lo tienes ✅)
 **Solución:** Ya está configurado correctamente
 

@@ -3,11 +3,13 @@
 ## 🎯 Estado Actual
 
 ### Frontend (Netlify) - ✅ CORRECTO
+
 - ✅ `withCredentials: true` configurado en axios
 - ✅ Variables de entorno agregadas a `netlify.toml`
 - ✅ URL del API correcta
 
 ### Backend (Railway) - ⚠️ VERIFICAR
+
 **Necesitas verificar/actualizar la configuración del backend**
 
 ---
@@ -17,6 +19,7 @@
 ### 1️⃣ Actualizar Backend (Railway)
 
 #### A. Configuración de Cookies
+
 En el endpoint de login, asegúrate de tener:
 
 ```csharp
@@ -34,6 +37,7 @@ Response.Cookies.Append("jwt", token, cookieOptions);
 ```
 
 #### B. Configuración de CORS
+
 En `Program.cs`:
 
 ```csharp
@@ -60,12 +64,15 @@ app.UseAuthorization();
 ```
 
 #### C. Variables de Entorno en Railway
+
 Agrega estas variables:
+
 ```
 ALLOWED_ORIGINS=https://tu-app.netlify.app,http://localhost:5173
 ```
 
 #### D. Redeploy en Railway
+
 **IMPORTANTE:** Después de hacer cambios, haz un redeploy.
 
 ---
@@ -73,9 +80,11 @@ ALLOWED_ORIGINS=https://tu-app.netlify.app,http://localhost:5173
 ### 2️⃣ Verificar Frontend (Netlify)
 
 #### A. Variables de Entorno
+
 Ya están configuradas en `netlify.toml` ✅
 
 Si prefieres configurarlas en el dashboard de Netlify:
+
 1. Ve a: Site settings → Environment variables
 2. Agrega:
    - `VITE_API_BASE_URL` = `https://casino-platform-production.up.railway.app/api/v1`
@@ -83,6 +92,7 @@ Si prefieres configurarlas en el dashboard de Netlify:
    - `VITE_ENABLE_API_LOGGING` = `false`
 
 #### B. Redeploy en Netlify
+
 Después de actualizar variables, haz un redeploy.
 
 ---
@@ -112,6 +122,7 @@ Después de actualizar variables, haz un redeploy.
 ## 🔥 Si Sigue Sin Funcionar
 
 Comparte capturas de pantalla de:
+
 1. Response Headers del POST `/admin/auth/login`
 2. Cookies en Application tab
 3. Request Headers de GET `/admin/auth/me`
@@ -131,11 +142,13 @@ Con eso puedo diagnosticar exactamente el problema.
 ## 🎯 TL;DR (Resumen Ultra Corto)
 
 **El problema más probable:**
+
 - El backend NO tiene `SameSite=None` y `Secure=true` en las cookies
 - El backend NO tiene `AllowCredentials()` en CORS
 - La URL de Netlify NO está en `WithOrigins()` del backend
 
 **Solución:**
+
 1. Actualizar configuración de cookies en backend (agregar `SameSite=None; Secure`)
 2. Actualizar CORS en backend (agregar `AllowCredentials()` y tu URL de Netlify)
 3. Redeploy backend y frontend

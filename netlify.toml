@@ -3,12 +3,23 @@
   publish = "dist"
   
   # Variables de entorno para el build
+  # ⚠️ IMPORTANTE: Ahora apuntamos a /api (proxy local) en lugar del backend directo
   [build.environment]
-    VITE_API_BASE_URL = "https://casino-platform-production.up.railway.app/api/v1"
+    VITE_API_BASE_URL = "/api/v1"
     VITE_NODE_ENV = "production"
     VITE_ENABLE_API_LOGGING = "false"
 
+# 🔥 PROXY: Redirige peticiones /api/* al backend en Railway
+# Esto preserva el host original del frontend en las peticiones
+[[redirects]]
+  from = "/api/*"
+  to = "https://casino-platform-production.up.railway.app/api/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify-Proxy"}
+
 # Redirects for SPA (Single Page Application)
+# ⚠️ IMPORTANTE: Esto debe ir DESPUÉS del proxy para no interferir
 [[redirects]]
   from = "/*"
   to = "/index.html"

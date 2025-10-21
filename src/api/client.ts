@@ -2,7 +2,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 // ✅ Configuración según especificaciones para JWT cookie HttpOnly + CORS
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7182/api/v1';
+// 🔥 IMPORTANTE: En producción usa PROXY de Netlify - ver NETLIFY-PROXY-GUIDE.md
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
 const IS_DEVELOPMENT = import.meta.env.DEV;
 const ENABLE_LOGGING = import.meta.env.VITE_ENABLE_API_LOGGING === 'true';
 

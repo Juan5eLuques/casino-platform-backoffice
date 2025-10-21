@@ -3,12 +3,14 @@
 ## Pre-Deploy
 
 ### Frontend
+
 - [x] `.env.production` configurado con URL del API en producción
 - [x] `vercel.json` y `netlify.toml` creados
 - [ ] `npm run build` funciona sin errores
 - [ ] `npm run preview:prod` funciona localmente
 
 ### Backend
+
 - [ ] API deployada y accesible en: `https://casino-platform-production.up.railway.app`
 - [ ] CORS configurado con el dominio del frontend
 - [ ] Variable `ALLOWED_ORIGINS` incluye el dominio del frontend
@@ -22,16 +24,19 @@
 ### Opción A: Vercel (Recomendado)
 
 1. **Install Vercel CLI**
+
    ```bash
    npm install -g vercel
    ```
 
 2. **Login**
+
    ```bash
    vercel login
    ```
 
 3. **Deploy**
+
    ```bash
    vercel --prod
    ```
@@ -52,16 +57,19 @@
 ### Opción B: Netlify
 
 1. **Install Netlify CLI**
+
    ```bash
    npm install -g netlify-cli
    ```
 
 2. **Login**
+
    ```bash
    netlify login
    ```
 
 3. **Deploy**
+
    ```bash
    npm run build
    netlify deploy --prod
@@ -79,7 +87,9 @@
 ## Post-Deploy
 
 ### 1. Get the deployed URL
+
 Después del deploy, obtendrás una URL como:
+
 - Vercel: `https://[project-name].vercel.app`
 - Netlify: `https://[project-name].netlify.app`
 
@@ -99,18 +109,20 @@ ALLOWED_ORIGINS=http://localhost:5173,https://[tu-app].vercel.app
 1. **Abrir la app** en el navegador
 2. **Abrir DevTools** (F12) → Console
 3. **Verificar configuración**:
+
    ```javascript
-   console.log(import.meta.env.VITE_API_BASE_URL)
+   console.log(import.meta.env.VITE_API_BASE_URL);
    // Debe mostrar: https://casino-platform-production.up.railway.app/api/v1
    ```
 
 4. **Test de conexión al API**:
+
    ```javascript
    fetch('https://casino-platform-production.up.railway.app/api/v1/health', {
-     credentials: 'include'
+     credentials: 'include',
    })
      .then(r => r.json())
-     .then(console.log)
+     .then(console.log);
    ```
 
 5. **Test de Login**:
@@ -124,30 +136,36 @@ ALLOWED_ORIGINS=http://localhost:5173,https://[tu-app].vercel.app
 ### 4. Common Issues
 
 #### ❌ CORS Error
+
 ```
 Access to fetch at '...' has been blocked by CORS policy
 ```
 
 **Fix:**
+
 - Agregar el dominio del frontend a `ALLOWED_ORIGINS` en el backend
 - Redeploy el backend
 
 #### ❌ 401 Unauthorized
+
 ```
 Unauthorized - JWT cookie issue
 ```
 
 **Fix:**
+
 - Verificar que el backend tenga `AllowCredentials = true`
 - Verificar cookies: `Secure=true`, `SameSite=None`
 - Asegurar que ambos (frontend y backend) usen HTTPS
 
 #### ❌ Mixed Content Error
+
 ```
 Mixed Content: The page was loaded over HTTPS, but requested an insecure resource
 ```
 
 **Fix:**
+
 - Asegurar que `VITE_API_BASE_URL` use `https://` (no `http://`)
 
 ---
@@ -189,6 +207,7 @@ netlify logs
 ## 🔄 Update Deployment
 
 ### Vercel
+
 ```bash
 git add .
 git commit -m "Update"
@@ -198,6 +217,7 @@ vercel --prod
 ```
 
 ### Netlify
+
 ```bash
 git add .
 git commit -m "Update"
@@ -212,6 +232,7 @@ netlify deploy --prod
 ## 📞 Need Help?
 
 Ver documentación detallada:
+
 - `DEPLOYMENT-GUIDE.md` - Guía completa de deployment
 - `BACKEND-CORS-SETUP.md` - Configuración de CORS en el backend
 - `TROUBLESHOOTING.md` - Soluciones a problemas comunes

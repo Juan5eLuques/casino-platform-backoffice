@@ -3,12 +3,15 @@
 ## Fecha: 15 de octubre de 2025
 
 ## Problema Inicial
+
 La página de auditoría estaba completamente en blanco debido a un error en el renderizado. El error era:
+
 ```
 Cannot read properties of undefined (reading 'username')
 ```
 
 ### Causa Raíz
+
 La estructura del tipo `AuditLog` no coincidía con la respuesta real del API. El tipo definía una estructura anidada con un objeto `user`, pero la respuesta del backend enviaba las propiedades directamente en el nivel superior.
 
 ## Cambios Realizados
@@ -16,35 +19,37 @@ La estructura del tipo `AuditLog` no coincidía con la respuesta real del API. E
 ### 1. Actualización del Tipo `AuditLog` (`src/types/index.ts`)
 
 **Antes:**
+
 ```typescript
 export interface AuditLog {
-   id: string;
-   action: string;
-   targetType: string;
-   targetId: string;
-   meta?: Record<string, any>;
-   createdAt: string;
-   user: {
-      id: string;
-      username: string;
-      role: BackofficeRole;
-   };
+  id: string;
+  action: string;
+  targetType: string;
+  targetId: string;
+  meta?: Record<string, any>;
+  createdAt: string;
+  user: {
+    id: string;
+    username: string;
+    role: BackofficeRole;
+  };
 }
 ```
 
 **Después:**
+
 ```typescript
 export interface AuditLog {
-   id: string;
-   userId: string;
-   username: string;
-   userRole: string;
-   operatorName: string | null;
-   action: string;
-   targetType: string;
-   targetId: string;
-   meta?: Record<string, any>;
-   createdAt: string;
+  id: string;
+  userId: string;
+  username: string;
+  userRole: string;
+  operatorName: string | null;
+  action: string;
+  targetType: string;
+  targetId: string;
+  meta?: Record<string, any>;
+  createdAt: string;
 }
 ```
 
@@ -54,11 +59,11 @@ Se agregó un nuevo tipo específico para la respuesta del endpoint de auditorí
 
 ```typescript
 export interface AuditPaginatedResponse<T> {
-   data: T[];
-   page: number;
-   pageSize: number;
-   totalCount: number;
-   totalPages: number;
+  data: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 }
 ```
 
@@ -79,20 +84,22 @@ getBackofficeLogs: async (params?: BackofficeAuditParams) => {
 ### 4. Mejoras en la Página de Auditoría (`src/pages/AuditPage.tsx`)
 
 #### 4.1 Filtros de Fecha
+
 - **Filtro "Desde"**: Input de fecha con valor por defecto al inicio del mes actual
 - **Filtro "Hasta"**: Input de fecha con valor por defecto al final del mes actual
 - **Botón "Limpiar Filtros"**: Resetea todos los filtros a sus valores por defecto
 
 ```typescript
 const [fromDate, setFromDate] = useState<string>(
-   format(startOfMonth(new Date()), 'yyyy-MM-dd')
+  format(startOfMonth(new Date()), 'yyyy-MM-dd')
 );
 const [toDate, setToDate] = useState<string>(
-   format(endOfMonth(new Date()), 'yyyy-MM-dd')
+  format(endOfMonth(new Date()), 'yyyy-MM-dd')
 );
 ```
 
 #### 4.2 Navegación por Usuario
+
 - La columna "Usuario" ahora es clickeable
 - Al hacer clic en un usuario, navega a `/audit/:userId`
 - Muestra únicamente los registros de auditoría de ese usuario específico
@@ -116,11 +123,13 @@ const [toDate, setToDate] = useState<string>(
 ```
 
 #### 4.3 Header Mejorado
+
 - Muestra información diferente cuando se está filtrando por usuario específico
 - Botón para volver a la vista completa cuando se está filtrando por usuario
 - Diseño responsive mejorado
 
 #### 4.4 Filtros en Query
+
 Se actualizó el query para incluir los nuevos parámetros:
 
 ```typescript
@@ -136,6 +145,7 @@ queryFn: () =>
 ```
 
 #### 4.5 Paginación Corregida
+
 Se actualizó para usar la estructura correcta de la respuesta del API:
 
 ```typescript
@@ -164,20 +174,24 @@ Se agregó una nueva ruta para soportar el filtrado por usuario:
 ## Funcionalidades Implementadas
 
 ### ✅ Corrección del Error de Renderizado
+
 - La página ahora renderiza correctamente los registros de auditoría
 - Se solucionó el problema del objeto `user` indefinido
 
 ### ✅ Filtros de Fecha
+
 - Filtro "Desde" con fecha del inicio del mes actual por defecto
 - Filtro "Hasta" con fecha del fin del mes actual por defecto
 - Botón para limpiar y resetear filtros
 
 ### ✅ Navegación por Usuario
+
 - Clic en cualquier username para ver solo sus registros
 - Ruta dedicada `/audit/:userId`
 - Botón para volver a la vista completa
 
 ### ✅ UI/UX Mejorada
+
 - Diseño responsive con grid layout para filtros
 - Soporte completo para dark mode
 - Estilos consistentes con el resto de la aplicación
@@ -210,7 +224,9 @@ El endpoint soporta los siguientes parámetros (según documentación):
       "action": "CREATE_USER|DELETE_USER|CREATE_PLAYER|...",
       "targetType": "BackofficeUser|Player",
       "targetId": "uuid",
-      "meta": { /* metadata del evento */ },
+      "meta": {
+        /* metadata del evento */
+      },
       "createdAt": "2025-10-14T01:54:13.616936Z"
     }
   ],

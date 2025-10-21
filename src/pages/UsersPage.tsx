@@ -343,7 +343,7 @@ export function UsersPage() {
    const handleToggleTree = async () => {
       const newShowState = !showTree;
       setShowTree(newShowState);
-      
+
       // Si se está mostrando y no hay datos, cargar automáticamente
       if (newShowState && !treeData && currentUser) {
          await loadUserTree(currentUser.id);
