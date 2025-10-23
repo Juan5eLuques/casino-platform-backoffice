@@ -67,7 +67,7 @@ export function DashboardPage() {
    }
 
    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:p-6">
          <DashboardHeader
             scope={scope}
             onScopeChange={setScope}

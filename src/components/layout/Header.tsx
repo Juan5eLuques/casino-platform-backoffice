@@ -7,7 +7,6 @@ import {
    ChevronDownIcon,
    ArrowRightOnRectangleIcon,
    UserIcon,
-   WalletIcon,
    Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { Menu, Transition } from '@headlessui/react';
@@ -15,17 +14,12 @@ import { Fragment } from 'react';
 import { useAuthStore, useUIStore } from '@/store';
 import { useLogout } from '@/hooks/useAuth';
 import { getInitials, getRoleBadgeClass } from '@/utils';
-import { useUserBalance } from '@/hooks/useTransactions';
-import { cn } from '@/utils';
+import { BalanceMobile } from '@/components/Balance';
 
 export function Header() {
    const { user, currentBrand, availableBrands, switchBrand } = useAuthStore();
    const { darkMode, toggleDarkMode, toggleSidebar } = useUIStore();
    const logoutMutation = useLogout();
-   const { data: balanceData, isLoading: isLoadingBalance } = useUserBalance(
-      user?.id || '',
-      'BACKOFFICE'
-   );
 
    const handleLogout = async () => {
       try {
@@ -33,15 +27,6 @@ export function Header() {
       } catch (error) {
          // Error handled by mutation
       }
-   };
-
-   const formatCurrency = (amount: number): string => {
-      return new Intl.NumberFormat('es-ES', {
-         style: 'currency',
-         currency: 'USD',
-         minimumFractionDigits: 2,
-         maximumFractionDigits: 2,
-      }).format(amount);
    };
 
    return (
@@ -68,25 +53,8 @@ export function Header() {
 
          {/* Right side - Balance, Actions and User Menu */}
          <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Balance Display - Compacto */}
-            {user && (
-               <div className={cn(
-                  'hidden sm:flex items-center space-x-1.5 px-2 py-1 rounded-md',
-                  'border border-primary-400 dark:border-primary-600',
-                  'shadow-sm'
-               )}>
-                  <WalletIcon className="w-4 h-4 text-white flex-shrink-0" />
-                  {isLoadingBalance ? (
-                     <div className="animate-pulse">
-                        <div className="h-3 w-16 bg-white/30 rounded" />
-                     </div>
-                  ) : (
-                     <span className="text-xs font-bold text-white whitespace-nowrap">
-                        {formatCurrency(balanceData?.balance || 0)}
-                     </span>
-                  )}
-               </div>
-            )}
+            {/* Balance - Siempre visible en mobile (compacto), desktop normal */}
+            {user && <BalanceMobile />}
             {/* Brand Selector */}
             {availableBrands.length > 1 && (
                <Menu as="div" className="relative">
@@ -135,10 +103,10 @@ export function Header() {
                </Menu>
             )}
 
-            {/* Dark Mode Toggle */}
+            {/* Dark Mode Toggle - Solo visible en desktop */}
             <button
                onClick={toggleDarkMode}
-               className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+               className="hidden md:flex p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
                {darkMode ? (
                   <SunIcon className="w-5 h-5" />
@@ -197,6 +165,32 @@ export function Header() {
                               </a>
                            )}
                         </Menu.Item>
+
+                        {/* Dark Mode Toggle - Solo visible en mobile */}
+                        <Menu.Item>
+                           {({ active }) => (
+                              <button
+                                 onClick={toggleDarkMode}
+                                 className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                    } md:hidden flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+                              >
+                                 {darkMode ? (
+                                    <>
+                                       <SunIcon className="w-4 h-4 mr-3" />
+                                       Modo Claro
+                                    </>
+                                 ) : (
+                                    <>
+                                       <MoonIcon className="w-4 h-4 mr-3" />
+                                       Modo Oscuro
+                                    </>
+                                 )}
+                              </button>
+                           )}
+                        </Menu.Item>
+
+                        <div className="md:hidden border-t border-gray-200 dark:border-gray-700 my-1" />
+
                         <Menu.Item>
                            {({ active }) => (
                               <button

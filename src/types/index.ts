@@ -134,19 +134,24 @@ export interface WalletInfo {
 
 // Game types
 export interface Game {
-   id: string;
-   code: string;
-   provider: string;
-   name: string;
-   category: 'SLOT' | 'TABLE' | 'POKER' | 'LIVE' | 'OTHER';
-   enabled: boolean;
-   createdAt: string;
+   gameId: string;           // UUID del juego
+   code: string;             // Código único del juego
+   name: string;             // Nombre del juego
+   provider: string;         // Proveedor (pragmatic, evolution, etc.)
+   type: 'SLOT' | 'LIVE_CASINO'; // Tipo de juego
+   category: string | null;  // Categoría (video-slots, roulette, etc.)
+   imageUrl: string | null;  // URL de la imagen/thumbnail
+   rtp: number | null;       // Return to Player % (ej: 96.51)
+   volatility: string | null; // LOW, MEDIUM, HIGH (solo para slots)
+   minBet: number | null;    // Apuesta mínima
+   maxBet: number | null;    // Apuesta máxima
+   isFeatured: boolean;      // Si es destacado
+   isNew: boolean;           // Si es nuevo
+   enabled: boolean;         // Si está habilitado
+   displayOrder: number;     // Orden de visualización
+   tags: string[];           // Tags adicionales
+   createdAt?: string;
    activeBrands?: number;
-   meta?: {
-      rtp?: number;
-      volatility?: string;
-      maxWin?: number;
-   };
 }
 
 export interface BrandGame {
@@ -280,11 +285,22 @@ export interface BrandFilters {
 }
 
 export interface GameFilters {
+   page?: number;
+   pageSize?: number;
+   type?: 'SLOT' | 'LIVE_CASINO';
+   category?: string;
    provider?: string;
+   featured?: boolean;
    enabled?: boolean;
    search?: string;
-   page?: number;
-   limit?: number;
+}
+
+export interface CatalogGamesResponse {
+   games: Game[];
+   page: number;
+   pageSize: number;
+   totalCount: number;
+   totalPages: number;
 }
 
 // Dashboard types

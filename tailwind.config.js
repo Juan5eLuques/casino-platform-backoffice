@@ -109,6 +109,7 @@ export default {
             'fade-in': 'fadeIn 0.2s ease-in-out',
             'slide-in': 'slideIn 0.3s ease-in-out',
             'scale-in': 'scaleIn 0.2s ease-in-out',
+            'shimmer': 'shimmer 3s ease-in-out infinite',
          },
          keyframes: {
             fadeIn: {
@@ -122,6 +123,10 @@ export default {
             scaleIn: {
                '0%': { transform: 'scale(0.95)', opacity: '0' },
                '100%': { transform: 'scale(1)', opacity: '1' },
+            },
+            shimmer: {
+               '0%': { transform: 'translateX(-100%)' },
+               '100%': { transform: 'translateX(100%)' },
             },
          },
       },
