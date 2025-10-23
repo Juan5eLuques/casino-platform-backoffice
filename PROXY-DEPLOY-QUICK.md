@@ -5,6 +5,7 @@
 ### 1. ✅ `netlify.toml` - Configuración de Proxy
 
 **Cambios:**
+
 - ✅ `VITE_API_BASE_URL = "/api/v1"` (ruta relativa)
 - ✅ Proxy redirect `/api/*` → Railway backend
 - ✅ Header `X-From: Netlify-Proxy` para tracking
@@ -12,6 +13,7 @@
 - ✅ Orden correcto: proxy ANTES del SPA fallback
 
 **Qué hace:**
+
 - Todas las peticiones a `/api/*` se redirigen al backend en Railway
 - El header `Host` se preserva con el dominio original (sitea.com)
 - El backend puede resolver el brand desde el host
@@ -19,11 +21,13 @@
 ### 2. ✅ `src/api/client.ts` - Fallback actualizado
 
 **Cambios:**
+
 - Fallback cambiado de `https://localhost:7182` a `http://localhost:5000`
 
 ### 3. ✅ `NETLIFY-PROXY-GUIDE.md` - Guía Completa
 
 Documentación detallada de:
+
 - Cómo funciona el proxy
 - Configuración multi-brand
 - Testing y verificación
@@ -51,12 +55,14 @@ Para **cada sitio** (SiteA y SiteB):
 ### 2. Configurar Custom Domains
 
 #### Para SiteA:
+
 1. **Site settings → Domain management → Custom domains**
 2. Click **Add custom domain**
 3. Agregar: `sitea.com` (o tu dominio real)
 4. Configurar DNS records según instrucciones de Netlify
 
 #### Para SiteB:
+
 1. Mismo proceso
 2. Agregar: `siteb.com` (o tu dominio real)
 
@@ -74,12 +80,14 @@ Netlify detectará los cambios y hará auto-deploy.
 ### 4. Verificar el Deploy
 
 #### En Netlify Dashboard:
+
 1. Ve a **Deploys**
 2. Espera que termine el build (2-3 minutos)
 3. Click en el deploy para ver logs
 4. Busca errores en la sección "Build logs"
 
 #### En tu Browser:
+
 1. Abre `https://sitea.com` (tu dominio)
 2. Abre DevTools (F12) → Network
 3. Intenta hacer login
@@ -88,6 +96,7 @@ Netlify detectará los cambios y hará auto-deploy.
    - **Headers:** Busca `Host: sitea.com` ✅
 
 #### En Backend Logs (Railway):
+
 ```csharp
 // Agregar logging temporal para verificar
 [HttpPost("login")]
@@ -95,10 +104,10 @@ public IActionResult Login([FromBody] LoginRequest request)
 {
     var host = Request.Headers["Host"].ToString();
     var xFrom = Request.Headers["X-From"].ToString();
-    
+
     Console.WriteLine($"🔍 Host recibido: {host}");      // Debería ser "sitea.com"
     Console.WriteLine($"🔍 X-From: {xFrom}");            // Debería ser "Netlify-Proxy"
-    
+
     // ... resto del código
 }
 ```
@@ -131,6 +140,7 @@ curl -v https://sitea.com/api/v1/health
 ### Test 3: Verificar Brand Resolution
 
 1. Backend debe poder resolver brand:
+
    ```csharp
    var host = Request.Headers["Host"];  // "sitea.com"
    var brand = ResolveBrandFromHost(host);  // "sitea"
@@ -146,11 +156,12 @@ curl -v https://sitea.com/api/v1/health
 
 ## ⚠️ Problemas Comunes
 
-### Error: "404 Not Found" en /api/*
+### Error: "404 Not Found" en /api/\*
 
 **Causa:** Netlify no aplicó la configuración del proxy.
 
 **Solución:**
+
 1. Verificar que `netlify.toml` está en la **raíz del proyecto**
 2. Hacer un nuevo deploy forzado:
    - Netlify Dashboard → Deploys → **Trigger deploy** → **Clear cache and deploy site**
@@ -160,6 +171,7 @@ curl -v https://sitea.com/api/v1/health
 **Causa:** Frontend HTTPS, backend HTTP.
 
 **Solución:**
+
 - Railway usa HTTPS automáticamente
 - Verificar en `netlify.toml`: `to = "https://..."` (NO `http://`)
 
@@ -168,6 +180,7 @@ curl -v https://sitea.com/api/v1/health
 **Causa:** Backend sigue usando `Domain=railway.app`.
 
 **Solución Backend:**
+
 ```csharp
 var cookieOptions = new CookieOptions
 {
@@ -184,6 +197,7 @@ var cookieOptions = new CookieOptions
 ## 📋 Checklist Final
 
 ### Netlify
+
 - [ ] `netlify.toml` en la raíz del proyecto
 - [ ] Proxy redirect ANTES del SPA fallback
 - [ ] Variables de entorno configuradas (`VITE_API_BASE_URL=/api/v1`)
@@ -191,6 +205,7 @@ var cookieOptions = new CookieOptions
 - [ ] Deploy exitoso sin errores
 
 ### Backend (Railway)
+
 - [ ] CORS permite origins del frontend (sitea.com, siteb.com)
 - [ ] Lee header `Host` correctamente
 - [ ] Cookies con `Domain` del frontend
@@ -198,6 +213,7 @@ var cookieOptions = new CookieOptions
 - [ ] Logging temporal para verificar headers
 
 ### Testing
+
 - [ ] Proxy funciona (curl test)
 - [ ] Host preservado (DevTools verificado)
 - [ ] Cookies se guardan y envían
@@ -209,6 +225,7 @@ var cookieOptions = new CookieOptions
 ## 🎉 Resultado Esperado
 
 **Antes (Sin Proxy):**
+
 ```
 Cliente → Railway (tuapp.railway.app)
            ↓
@@ -217,6 +234,7 @@ Cliente → Railway (tuapp.railway.app)
 ```
 
 **Ahora (Con Proxy):**
+
 ```
 Cliente → Netlify (sitea.com) → Railway
            ↓                     ↓

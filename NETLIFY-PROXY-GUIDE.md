@@ -9,21 +9,25 @@ Esta guía explica cómo configurar Netlify para que actúe como proxy entre tu 
 ## ❓ ¿Por qué necesitas un proxy?
 
 ### Problema Sin Proxy:
+
 ```
 Cliente (navegador) → Railway API
                       ↓
                       Host: tuapp.railway.app
 ```
+
 - ❌ El backend recibe `Host: tuapp.railway.app`
 - ❌ No puede determinar el brand desde el dominio
 - ❌ No puede resolver `sitea.com` vs `siteb.com`
 
 ### Solución Con Proxy:
+
 ```
 Cliente (navegador) → Netlify (sitea.com) → Railway API
                       ↓                      ↓
                       Host: sitea.com        Host: sitea.com
 ```
+
 - ✅ El backend recibe `Host: sitea.com` (preservado por Netlify)
 - ✅ Puede determinar el brand automáticamente
 - ✅ Cookies con `Domain=sitea.com` funcionan correctamente
@@ -40,7 +44,7 @@ El archivo ya ha sido actualizado con la configuración correcta:
 [build]
   command = "npm run build"
   publish = "dist"
-  
+
   # Variables de entorno para el build
   # ⚠️ IMPORTANTE: Ahora apuntamos a /api (proxy local) en lugar del backend directo
   [build.environment]
@@ -70,6 +74,7 @@ El archivo ya ha sido actualizado con la configuración correcta:
 En Netlify Dashboard, para cada sitio (uno por brand):
 
 #### Para SiteA (sitea.com):
+
 1. Ve a **Site settings → Environment variables**
 2. Agrega:
    ```
@@ -79,6 +84,7 @@ En Netlify Dashboard, para cada sitio (uno por brand):
    ```
 
 #### Para SiteB (siteb.com):
+
 1. Ve a **Site settings → Environment variables**
 2. Agrega las mismas variables:
    ```
@@ -103,17 +109,20 @@ En cada sitio de Netlify:
 ### Request Flow:
 
 1. **Cliente hace request:**
+
    ```javascript
    // Frontend en https://sitea.com
    GET https://sitea.com/api/v1/auth/me
    ```
 
 2. **Netlify intercepta `/api/*`:**
+
    ```
    Netlify Proxy detecta que la ruta empieza con /api/
    ```
 
 3. **Netlify hace proxy a Railway:**
+
    ```http
    GET https://casino-platform-production.up.railway.app/api/v1/auth/me
    Host: sitea.com                    ← ✅ HOST PRESERVADO!
@@ -137,18 +146,21 @@ En cada sitio de Netlify:
 Crear dos sitios separados en Netlify:
 
 **Sitio 1 - SiteA:**
+
 - Custom domain: `sitea.com`
 - Environment variables: `VITE_API_BASE_URL=/api/v1`
 - Proxy redirect: Mismo `netlify.toml`
 - Build del mismo repo/branch
 
 **Sitio 2 - SiteB:**
+
 - Custom domain: `siteb.com`
 - Environment variables: `VITE_API_BASE_URL=/api/v1`
 - Proxy redirect: Mismo `netlify.toml`
 - Build del mismo repo/branch
 
 **Ventajas:**
+
 - ✅ Aislamiento completo entre brands
 - ✅ Host automáticamente diferente por sitio
 - ✅ Configuración más simple
@@ -159,11 +171,13 @@ Crear dos sitios separados en Netlify:
 Si usas branch deploys:
 
 **Main branch → SiteA (sitea.com):**
+
 ```toml
 VITE_API_BASE_URL = "/api/v1"
 ```
 
 **Siteb branch → SiteB (siteb.com):**
+
 ```toml
 VITE_API_BASE_URL = "/api/v1"
 ```
@@ -203,10 +217,10 @@ public IActionResult Login([FromBody] LoginRequest request)
 {
     var host = Request.Headers["Host"].ToString();
     var xFrom = Request.Headers["X-From"].ToString();
-    
+
     Console.WriteLine($"🔍 Host: {host}");         // Debería mostrar "sitea.com"
     Console.WriteLine($"🔍 X-From: {xFrom}");      // Debería mostrar "Netlify-Proxy"
-    
+
     // ... resto del código
 }
 ```
@@ -238,11 +252,12 @@ Netlify detectará los cambios en `netlify.toml` y aplicará la nueva configurac
 
 ## 🔧 Troubleshooting
 
-### Problema 1: "404 Not Found" en /api/*
+### Problema 1: "404 Not Found" en /api/\*
 
 **Causa:** El proxy redirect no se aplicó correctamente.
 
 **Solución:**
+
 1. Verificar que `netlify.toml` está en la raíz del repo
 2. Verificar que el formato es correcto (TOML syntax)
 3. Re-deploy manualmente desde Netlify Dashboard
@@ -252,6 +267,7 @@ Netlify detectará los cambios en `netlify.toml` y aplicará la nueva configurac
 **Causa:** Frontend en HTTPS, backend en HTTP.
 
 **Solución:**
+
 - Asegurar que Railway backend usa HTTPS (Railway lo hace automáticamente)
 - Verificar que `to = "https://..."` en netlify.toml
 
@@ -260,6 +276,7 @@ Netlify detectará los cambios en `netlify.toml` y aplicará la nueva configurac
 **Causa:** Con proxy, las cookies deben tener `Domain` del frontend.
 
 **Solución en Backend:**
+
 ```csharp
 var cookieOptions = new CookieOptions
 {
@@ -276,10 +293,11 @@ var cookieOptions = new CookieOptions
 **Causa:** Railway o Netlify no está preservando el header.
 
 **Solución:**
+
 1. Verificar en backend logs qué headers llegan
 2. Agregar `X-Forwarded-Host` como fallback:
    ```csharp
-   var host = Request.Headers["Host"].FirstOrDefault() 
+   var host = Request.Headers["Host"].FirstOrDefault()
            ?? Request.Headers["X-Forwarded-Host"].FirstOrDefault();
    ```
 
@@ -288,6 +306,7 @@ var cookieOptions = new CookieOptions
 **Causa:** El orden de los redirects en `netlify.toml` está mal.
 
 **Solución:**
+
 - El proxy `/api/*` debe ir **ANTES** del SPA fallback `/*`
 - Verificar que `force = true` está en el proxy
 
@@ -295,15 +314,15 @@ var cookieOptions = new CookieOptions
 
 ## 📊 Comparación: Sin Proxy vs Con Proxy
 
-| Aspecto | Sin Proxy | Con Proxy |
-|---------|-----------|-----------|
-| **URL Request** | `railway.app/api/v1/login` | `sitea.com/api/v1/login` |
-| **Host Header** | `railway.app` ❌ | `sitea.com` ✅ |
-| **Brand Resolution** | Imposible ❌ | Automático ✅ |
-| **Cookie Domain** | `.railway.app` ❌ | `.sitea.com` ✅ |
-| **CORS Config** | Complejo ❌ | Simple ✅ |
-| **Security** | Expone backend URL ❌ | Backend oculto ✅ |
-| **Multi-Brand** | Imposible ❌ | Funciona ✅ |
+| Aspecto              | Sin Proxy                  | Con Proxy                |
+| -------------------- | -------------------------- | ------------------------ |
+| **URL Request**      | `railway.app/api/v1/login` | `sitea.com/api/v1/login` |
+| **Host Header**      | `railway.app` ❌           | `sitea.com` ✅           |
+| **Brand Resolution** | Imposible ❌               | Automático ✅            |
+| **Cookie Domain**    | `.railway.app` ❌          | `.sitea.com` ✅          |
+| **CORS Config**      | Complejo ❌                | Simple ✅                |
+| **Security**         | Expone backend URL ❌      | Backend oculto ✅        |
+| **Multi-Brand**      | Imposible ❌               | Funciona ✅              |
 
 ---
 
@@ -312,6 +331,7 @@ var cookieOptions = new CookieOptions
 ### 1. Ocultar URL del Backend:
 
 Con proxy, los clientes no ven la URL real de Railway:
+
 ```javascript
 // Cliente ve:
 GET https://sitea.com/api/v1/users

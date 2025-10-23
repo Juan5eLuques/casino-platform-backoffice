@@ -15,11 +15,15 @@ export default defineConfig({
       host: 'localhost', // localhost para compatibilidad con cookies
       cors: true,
       proxy: {
-         // Proxy para evitar CORS en desarrollo según especificaciones
+         // Proxy para evitar CORS en desarrollo
+         // ✅ Cambia el target según tu backend:
+         //    - Desarrollo local: 'https://localhost:7182'
+         //    - Producción Railway: 'https://casino-platform-production.up.railway.app'
          '/api': {
-            target: 'https://casino-platform-production.up.railway.app/', // VITE_API_ORIGIN
+            target: 'https://localhost:7182', // 🔥 Tu backend local
             changeOrigin: true,
-            secure: false // Para certificados self-signed en desarrollo
+            secure: false, // Para certificados self-signed en desarrollo
+            rewrite: (path) => path, // Mantener /api en la ruta
          }
       }
    },

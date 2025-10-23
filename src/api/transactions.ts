@@ -89,7 +89,7 @@ export const transactionsApi = {
          toUserId,
          toUserType,
          amount: Math.abs(amount),
-         transactionType: isSuperAdmin ? 'DEPOSIT' : 'TRANSFER',
+         transactionType: isSuperAdmin ? 'MINT' : 'TRANSFER',
          idempotencyKey: `deposit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
          description: description || (isSuperAdmin ? 'Depósito de fondos' : 'Transferencia de fondos')
       };
