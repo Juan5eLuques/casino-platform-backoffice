@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { useDashboard } from '../hooks/useDashboard';
 import type { DashboardScope } from '../types/dashboard';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { UsuariosCard } from '../components/dashboard/UsuariosCard';
 import { AlertasCard } from '../components/dashboard/AlertasCard';
 import { CasinoCard } from '../components/dashboard/CasinoCard';
 import { FichasCard } from '../components/dashboard/FichasCard';
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
-import { BrandSwitcher } from '../components/BrandSwitcher';
 
 export function DashboardPage() {
    const [scope, setScope] = useState<DashboardScope>('TREE');

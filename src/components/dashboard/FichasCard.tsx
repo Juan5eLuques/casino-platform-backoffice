@@ -1,4 +1,4 @@
-import { RefreshCw, Wallet, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Download, Coins } from 'lucide-react';
+import { RefreshCw, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Download, Coins } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import type { FinancesSummary } from '../../types/dashboard';
 import { formatCurrency } from '../../utils/formatters';

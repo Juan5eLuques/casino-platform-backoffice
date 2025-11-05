@@ -13,8 +13,7 @@ import { BrandsPage } from './pages/BrandsPage';
 import { GamesPage } from './pages/GamesPage';
 import { AuditPage } from './pages/AuditPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { ComponentsShowcasePage } from './pages/ComponentsShowcasePage';
-import { ThemeDevelopmentPage } from './pages/dev/ThemeDevelopmentPage';
+
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
