@@ -10,14 +10,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
    ({ className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props }, ref) => {
-      const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-dark-bg disabled:opacity-50 disabled:cursor-not-allowed';
+      const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
       const variantClasses = {
-         primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500',
-         secondary: 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 focus:ring-gray-500',
-         danger: 'bg-danger-600 hover:bg-danger-700 text-white focus:ring-danger-500',
-         success: 'bg-success-600 hover:bg-success-700 text-white focus:ring-success-500',
-         warning: 'bg-warning-600 hover:bg-warning-700 text-white focus:ring-warning-500',
+         primary: 'bg-btn-primary-bg hover:bg-btn-primary-bg-hover active:bg-btn-primary-bg-active text-btn-primary-text border border-btn-primary-border hover:border-btn-primary-border-hover',
+         secondary: 'bg-btn-secondary-bg hover:bg-btn-secondary-bg-hover active:bg-btn-secondary-bg-active text-btn-secondary-text border border-btn-secondary-border hover:border-btn-secondary-border-hover',
+         danger: 'bg-btn-danger-bg hover:bg-btn-danger-bg-hover active:bg-btn-danger-bg-active text-btn-danger-text border border-btn-danger-border hover:border-btn-danger-border-hover',
+         success: 'bg-btn-success-bg hover:bg-btn-success-bg-hover active:bg-btn-success-bg-active text-btn-success-text border border-btn-success-border hover:border-btn-success-border-hover',
+         warning: 'bg-btn-warning-bg hover:bg-btn-warning-bg-hover active:bg-btn-warning-bg-active text-btn-warning-text border border-btn-warning-border hover:border-btn-warning-border-hover',
       };
 
       const sizeClasses = {

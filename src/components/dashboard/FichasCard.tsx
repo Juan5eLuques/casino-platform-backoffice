@@ -1,4 +1,4 @@
-import { RefreshCw, Wallet, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Download } from 'lucide-react';
+import { RefreshCw, Wallet, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Download, Coins } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import type { FinancesSummary } from '../../types/dashboard';
 import { formatCurrency } from '../../utils/formatters';
@@ -27,16 +27,16 @@ export function FichasCard({ data, onRefresh }: FichasCardProps) {
    const isPositive = netChange >= 0;
 
    return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full flex flex-col">
+      <div className="bg-secondary rounded-2xl shadow-xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 border border-default h-full flex flex-col">
          {/* Header */}
          <div className="flex justify-between items-start mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3">
-               <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-2 sm:p-3 rounded-xl shadow-lg">
-                  <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+               <div className="bg-gradient-to-br from-brand-primary to-brand-primary-hover p-2 sm:p-3 rounded-xl shadow-lg">
+                  <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                </div>
                <div>
-                  <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Balance de Fichas</h3>
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-0.5 sm:mt-1">
+                  <h3 className="text-xs sm:text-sm font-medium text-secondary">Fichas</h3>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mt-0.5 sm:mt-1">
                      {formatCurrency(fichas.balanceActual)}
                   </p>
                </div>
@@ -44,18 +44,18 @@ export function FichasCard({ data, onRefresh }: FichasCardProps) {
             {onRefresh && (
                <button
                   onClick={onRefresh}
-                  className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 hover:bg-surface-hover rounded-lg transition-colors"
                   aria-label="Actualizar"
                >
-                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-tertiary hover:text-secondary" />
                </button>
             )}
          </div>
 
          {/* Delta Badge */}
          <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6 self-start ${isPositive
-               ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-               : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+            ? 'bg-status-success-bg text-status-success-text'
+            : 'bg-status-error-bg text-status-error-text'
             }`}>
             {isPositive ? (
                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -116,41 +116,41 @@ export function FichasCard({ data, onRefresh }: FichasCardProps) {
          </div>
 
          {/* Transactions */}
-         <div className="pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2 mt-auto">
-            <div className="flex items-center justify-between p-2 sm:p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+         <div className="pt-3 sm:pt-4 border-t border-default space-y-2 mt-auto">
+            <div className="flex items-center justify-between p-2 sm:p-3 bg-status-success-bg rounded-lg">
                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Cargas</span>
+                  <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-status-success-text flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-secondary">Cargas</span>
                </div>
                <div className="text-right">
-                  <div className="font-semibold text-green-600 dark:text-green-400 text-xs sm:text-sm">
+                  <div className="font-semibold text-status-success-text text-xs sm:text-sm">
                      {formatCurrency(cargas.total)}
                   </div>
-                  <div className="text-[10px] text-gray-500 dark:text-gray-400">{cargas.count} trans.</div>
+                  <div className="text-[10px] text-tertiary">{cargas.count} trans.</div>
                </div>
             </div>
-            <div className="flex items-center justify-between p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="flex items-center justify-between p-2 sm:p-3 bg-status-info-bg rounded-lg">
                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Download className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Depósitos</span>
+                  <Download className="w-3 h-3 sm:w-4 sm:h-4 text-status-info-text flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-secondary">Depósitos</span>
                </div>
                <div className="text-right">
-                  <div className="font-semibold text-blue-600 dark:text-blue-400 text-xs sm:text-sm">
+                  <div className="font-semibold text-status-info-text text-xs sm:text-sm">
                      {formatCurrency(depositosA.total)}
                   </div>
-                  <div className="text-[10px] text-gray-500 dark:text-gray-400">{depositosA.count} trans.</div>
+                  <div className="text-[10px] text-tertiary">{depositosA.count} trans.</div>
                </div>
             </div>
-            <div className="flex items-center justify-between p-2 sm:p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            <div className="flex items-center justify-between p-2 sm:p-3 bg-status-error-bg rounded-lg">
                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <ArrowDownRight className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Retiros</span>
+                  <ArrowDownRight className="w-3 h-3 sm:w-4 sm:h-4 text-status-error-text flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-secondary">Retiros</span>
                </div>
                <div className="text-right">
-                  <div className="font-semibold text-red-600 dark:text-red-400 text-xs sm:text-sm">
+                  <div className="font-semibold text-status-error-text text-xs sm:text-sm">
                      {formatCurrency(retiros.total)}
                   </div>
-                  <div className="text-[10px] text-gray-500 dark:text-gray-400">{retiros.count} trans.</div>
+                  <div className="text-[10px] text-tertiary">{retiros.count} trans.</div>
                </div>
             </div>
          </div>

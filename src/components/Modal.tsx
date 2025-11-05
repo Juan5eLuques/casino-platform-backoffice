@@ -42,7 +42,7 @@ export function Modal({
                leaveFrom="opacity-100"
                leaveTo="opacity-0"
             >
-               <div className="fixed inset-0 bg-black bg-opacity-25 dark:bg-opacity-50" />
+               <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
             </Transition.Child>
 
             <div className="fixed inset-0 overflow-y-auto">
@@ -57,26 +57,26 @@ export function Modal({
                      leaveTo="opacity-0 scale-95"
                   >
                      <Dialog.Panel
-                        className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all`}
+                        className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-primary border border-default p-6 text-left align-middle shadow-xl transition-all`}
                      >
                         {/* Header */}
                         <div className="flex items-start justify-between mb-4">
                            <div className="flex-1">
                               <Dialog.Title
                                  as="h3"
-                                 className="text-lg font-medium leading-6 text-gray-900 dark:text-white"
+                                 className="text-lg font-medium leading-6 text-primary"
                               >
                                  {title}
                               </Dialog.Title>
                               {description && (
-                                 <Dialog.Description className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                 <Dialog.Description className="mt-1 text-sm text-secondary">
                                     {description}
                                  </Dialog.Description>
                               )}
                            </div>
                            <button
                               onClick={onClose}
-                              className="ml-4 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                              className="ml-4 text-tertiary hover:text-secondary transition-colors"
                            >
                               <X className="w-5 h-5" />
                            </button>

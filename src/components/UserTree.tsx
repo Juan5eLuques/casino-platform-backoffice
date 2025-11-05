@@ -48,13 +48,13 @@ const TreeNodeComponent = ({
    const getRoleColor = (role: BackofficeRole | null) => {
       switch (role) {
          case 'SUPER_ADMIN':
-            return 'text-purple-600 dark:text-purple-400';
+            return 'text-brand-primary';
          case 'BRAND_ADMIN':
-            return 'text-blue-600 dark:text-blue-400';
+            return 'text-brand-primary';
          case 'CASHIER':
-            return 'text-green-600 dark:text-green-400';
+            return 'text-status-success-text';
          default:
-            return 'text-gray-600 dark:text-gray-400';
+            return 'text-tertiary';
       }
    };
 
@@ -66,13 +66,13 @@ const TreeNodeComponent = ({
    const getStatusColor = (status: string) => {
       switch (status) {
          case 'ACTIVE':
-            return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+            return 'bg-status-success-bg text-status-success-text';
          case 'INACTIVE':
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+            return 'bg-tertiary text-secondary';
          case 'SUSPENDED':
-            return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+            return 'bg-status-error-bg text-status-error-text';
          default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+            return 'bg-tertiary text-secondary';
       }
    };
 
@@ -84,8 +84,8 @@ const TreeNodeComponent = ({
          <div
             className={cn(
                'group relative flex items-center gap-2 p-2.5 rounded-md border transition-all',
-               'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-               'hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-sm',
+               'bg-secondary border-default',
+               'hover:border-brand-primary hover:shadow-sm',
                isLoading && 'opacity-50 cursor-wait'
             )}
          >
@@ -96,7 +96,7 @@ const TreeNodeComponent = ({
                   disabled={isLoading}
                   className={cn(
                      'flex items-center justify-center w-5 h-5 rounded',
-                     'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600',
+                     'bg-tertiary hover:bg-surface-hover',
                      'transition-colors disabled:cursor-wait'
                   )}
                   aria-label={isExpanded ? 'Colapsar' : 'Expandir'}
@@ -117,16 +117,16 @@ const TreeNodeComponent = ({
                className={cn(
                   'flex items-center justify-center w-7 h-7 rounded-full',
                   node.userType === UserType.BACKOFFICE
-                     ? 'bg-blue-100 dark:bg-blue-900/30'
-                     : 'bg-purple-100 dark:bg-purple-900/30'
+                     ? 'bg-brand-accent bg-opacity-10'
+                     : 'bg-status-info-bg'
                )}
             >
                <UserIcon
                   className={cn(
                      'h-3.5 w-3.5',
                      node.userType === UserType.BACKOFFICE
-                        ? 'text-blue-600 dark:text-blue-400'
-                        : 'text-purple-600 dark:text-purple-400'
+                        ? 'text-brand-primary'
+                        : 'text-status-info-text'
                   )}
                />
             </div>

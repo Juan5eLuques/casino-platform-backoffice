@@ -99,7 +99,7 @@ export const transactionsApi = {
 
    /**
     * RETIRO (Botón -)
-    * Usa TRANSFER invirtiendo los usuarios: del target al current user
+    * Usa WITHDRAWAL para retirar fondos del usuario target
     */
    withdrawFunds: async (
       currentUserId: string,
@@ -110,12 +110,12 @@ export const transactionsApi = {
       description?: string
    ): Promise<TransactionResponse> => {
       const transactionData: CreateTransactionRequest = {
-         fromUserId: targetUserId,  // INVERTIDO: del usuario target
+         fromUserId: targetUserId,  // Del usuario target (se le retira)
          fromUserType: targetUserType,
-         toUserId: currentUserId,    // INVERTIDO: hacia el usuario actual
+         toUserId: currentUserId,    // Hacia el usuario actual (quien retira)
          toUserType: currentUserType,
          amount: Math.abs(amount),
-         transactionType: 'TRANSFER',
+         transactionType: 'WITHDRAWAL',  // Tipo correcto para retiros
          idempotencyKey: `withdrawal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
          description: description || 'Retiro de fondos'
       };

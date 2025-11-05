@@ -30,23 +30,23 @@ export function Header() {
    };
 
    return (
-      <header className="bg-white dark:bg-dark-bg-secondary border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 sm:px-6">
+      <header className="bg-secondary border-b border-default h-16 flex items-center justify-between px-4 sm:px-6">
          {/* Left side - Hamburger + Search */}
          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Botón Hamburguesa - Solo visible en mobile y tablet */}
             <button
                onClick={toggleSidebar}
-               className="lg:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+               className="lg:hidden p-2 text-text-secondary hover:text-text-primary hover:bg-tertiary rounded-lg transition-colors"
             >
                <Bars3Icon className="w-6 h-6" />
             </button>
 
             <div className="relative hidden lg:block">
-               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary" />
                <input
                   type="text"
                   placeholder="Buscar jugadores, usuarios..."
-                  className="pl-10 pr-4 py-2 w-80 bg-gray-50 dark:bg-dark-bg-tertiary border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                  className="pl-10 pr-4 py-2 w-80 bg-tertiary border border-default rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary text-text-primary"
                />
             </div>
          </div>
@@ -58,11 +58,11 @@ export function Header() {
             {/* Brand Selector */}
             {availableBrands.length > 1 && (
                <Menu as="div" className="relative">
-                  <Menu.Button className="flex items-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-dark-bg-tertiary border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Menu.Button className="flex items-center space-x-2 px-3 py-2 bg-tertiary border border-default rounded-lg hover:bg-surface-hover transition-colors">
+                     <span className="text-sm font-medium text-text-primary">
                         {currentBrand?.name || 'Seleccionar Brand'}
                      </span>
-                     <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                     <ChevronDownIcon className="w-4 h-4 text-text-tertiary" />
                   </Menu.Button>
                   <Transition
                      as={Fragment}
@@ -73,24 +73,24 @@ export function Header() {
                      leaveFrom="transform opacity-100 scale-100"
                      leaveTo="transform opacity-0 scale-95"
                   >
-                     <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white dark:bg-dark-bg-secondary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 focus:outline-none z-50">
+                     <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-secondary rounded-lg shadow-lg border border-default focus:outline-none z-50">
                         <div className="py-1">
                            {availableBrands.map((brand) => (
                               <Menu.Item key={brand.id}>
                                  {({ active }) => (
                                     <button
                                        onClick={() => switchBrand(brand)}
-                                       className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                          } ${currentBrand?.id === brand.id ? 'bg-primary-50 dark:bg-primary-900/20' : ''
-                                          } block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+                                       className={`${active ? 'bg-surface-hover' : ''
+                                          } ${currentBrand?.id === brand.id ? 'bg-brand-accent bg-opacity-10' : ''
+                                          } block w-full text-left px-4 py-2 text-sm text-text-primary`}
                                     >
                                        <div className="flex items-center justify-between">
                                           <span>{brand.name}</span>
                                           {currentBrand?.id === brand.id && (
-                                             <span className="text-primary-600 dark:text-primary-400">✓</span>
+                                             <span className="text-brand-primary">✓</span>
                                           )}
                                        </div>
-                                       <span className="text-xs text-gray-500 dark:text-gray-400">
+                                       <span className="text-xs text-text-tertiary">
                                           {brand.domain}
                                        </span>
                                     </button>
@@ -106,7 +106,7 @@ export function Header() {
             {/* Dark Mode Toggle - Solo visible en desktop */}
             <button
                onClick={toggleDarkMode}
-               className="hidden md:flex p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+               className="hidden md:flex p-2 text-text-secondary hover:text-text-primary hover:bg-tertiary rounded-lg transition-colors"
             >
                {darkMode ? (
                   <SunIcon className="w-5 h-5" />
@@ -116,21 +116,21 @@ export function Header() {
             </button>
 
             {/* Notifications */}
-            <button className="relative p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <button className="relative p-2 text-text-secondary hover:text-text-primary hover:bg-tertiary rounded-lg transition-colors">
                <BellIcon className="w-5 h-5" />
-               <span className="absolute top-1 right-1 w-2 h-2 bg-danger-500 rounded-full"></span>
+               <span className="absolute top-1 right-1 w-2 h-2 bg-status-error-text rounded-full"></span>
             </button>
 
             {/* User Menu */}
             <Menu as="div" className="relative">
-               <Menu.Button className="flex items-center space-x-3 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                  <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+               <Menu.Button className="flex items-center space-x-3 p-1 hover:bg-tertiary rounded-lg transition-colors">
+                  <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
                      <span className="text-white text-sm font-medium">
                         {user ? getInitials(user.username) : 'U'}
                      </span>
                   </div>
                   <div className="hidden md:block text-left">
-                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                     <p className="text-sm font-medium text-text-primary">
                         {user?.username}
                      </p>
                      {user?.role && (
@@ -139,7 +139,7 @@ export function Header() {
                         </span>
                      )}
                   </div>
-                  <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  <ChevronDownIcon className="w-4 h-4 text-text-tertiary" />
                </Menu.Button>
 
                <Transition
@@ -151,14 +151,14 @@ export function Header() {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                >
-                  <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white dark:bg-dark-bg-secondary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 focus:outline-none z-50">
+                  <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-secondary rounded-lg shadow-lg border border-default focus:outline-none z-50">
                      <div className="py-1">
                         <Menu.Item>
                            {({ active }) => (
                               <a
                                  href="#"
-                                 className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                    } flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+                                 className={`${active ? 'bg-surface-hover' : ''
+                                    } flex items-center px-4 py-2 text-sm text-text-primary`}
                               >
                                  <UserIcon className="w-4 h-4 mr-3" />
                                  Mi Perfil
@@ -171,8 +171,8 @@ export function Header() {
                            {({ active }) => (
                               <button
                                  onClick={toggleDarkMode}
-                                 className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                    } md:hidden flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+                                 className={`${active ? 'bg-surface-hover' : ''
+                                    } md:hidden flex items-center w-full px-4 py-2 text-sm text-text-primary`}
                               >
                                  {darkMode ? (
                                     <>
@@ -189,15 +189,15 @@ export function Header() {
                            )}
                         </Menu.Item>
 
-                        <div className="md:hidden border-t border-gray-200 dark:border-gray-700 my-1" />
+                        <div className="md:hidden border-t border-default my-1" />
 
                         <Menu.Item>
                            {({ active }) => (
                               <button
                                  onClick={handleLogout}
                                  disabled={logoutMutation.isPending}
-                                 className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                    } flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 disabled:opacity-50`}
+                                 className={`${active ? 'bg-surface-hover' : ''
+                                    } flex items-center w-full px-4 py-2 text-sm text-text-primary disabled:opacity-50`}
                               >
                                  <ArrowRightOnRectangleIcon className="w-4 h-4 mr-3" />
                                  {logoutMutation.isPending ? 'Cerrando...' : 'Cerrar Sesión'}

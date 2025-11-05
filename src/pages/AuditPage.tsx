@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { FileText, Download } from 'lucide-react';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { auditApi } from '@/api/audit';
 import { DataTable, Column } from '@/components/DataTable';
 import { PermissionGuard } from '@/components/PermissionGuard';
 import { Permission } from '@/lib/permissions';
+import { DatePicker } from '@/components/ui';
 import type { AuditLog } from '@/types';
 
 export function AuditPage() {
@@ -18,12 +19,12 @@ export function AuditPage() {
    const [actionFilter, setActionFilter] = useState('');
    const [page, setPage] = useState(1);
 
-   // Filtros de fecha: por defecto, inicio y fin del mes actual
+   // Filtros de fecha: primer día del mes hasta hoy
    const [fromDate, setFromDate] = useState<string>(
       format(startOfMonth(new Date()), 'yyyy-MM-dd')
    );
    const [toDate, setToDate] = useState<string>(
-      format(endOfMonth(new Date()), 'yyyy-MM-dd')
+      format(new Date(), 'yyyy-MM-dd')
    );
 
    // Query para logs de backoffice
@@ -121,16 +122,16 @@ export function AuditPage() {
       <PermissionGuard permission={Permission.AUDIT_READ}>
          <div className="space-y-6">
             {/* Header */}
-            <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="pb-4 border-b border-default">
                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex-1">
                      <div className="flex items-center">
-                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 mr-2 sm:mr-3 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 mr-2 sm:mr-3 text-brand-primary flex-shrink-0" />
+                        <h1 className="text-2xl md:text-3xl font-bold text-primary">
                            Auditoría {userIdParam && '- Usuario Específico'}
                         </h1>
                      </div>
-                     <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
+                     <p className="text-sm md:text-base text-secondary mt-1">
                         {userIdParam
                            ? `Mostrando registros del usuario: ${userIdParam}`
                            : 'Visualiza el historial de acciones del sistema'}
@@ -150,7 +151,7 @@ export function AuditPage() {
                            // TODO: Implementar exportación
                            alert('Exportación en desarrollo');
                         }}
-                        className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap"
+                        className="flex items-center justify-center px-4 py-2 bg-status-success text-white rounded-lg hover:opacity-90 transition-all whitespace-nowrap"
                      >
                         <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         Exportar CSV
@@ -190,11 +191,11 @@ export function AuditPage() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
+            <div className="bg-secondary p-4 rounded-lg border border-default space-y-4">
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Filtro de acción */}
                   <div>
-                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                     <label className="block text-sm font-medium text-secondary mb-1">
                         Acción
                      </label>
                      <input
@@ -205,41 +206,33 @@ export function AuditPage() {
                            setActionFilter(e.target.value);
                            setPage(1);
                         }}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 border border-default rounded-lg bg-tertiary text-primary focus:ring-2 focus:ring-brand-primary"
                      />
                   </div>
 
                   {/* Fecha desde */}
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Desde
-                     </label>
-                     <input
-                        type="date"
-                        value={fromDate}
-                        onChange={(e) => {
-                           setFromDate(e.target.value);
-                           setPage(1);
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                     />
-                  </div>
+                  <DatePicker
+                     label="Desde"
+                     value={fromDate}
+                     onChange={(value) => {
+                        setFromDate(value);
+                        setPage(1);
+                     }}
+                     placeholder="Fecha inicio"
+                     maxDate={toDate || undefined}
+                  />
 
                   {/* Fecha hasta */}
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Hasta
-                     </label>
-                     <input
-                        type="date"
-                        value={toDate}
-                        onChange={(e) => {
-                           setToDate(e.target.value);
-                           setPage(1);
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                     />
-                  </div>
+                  <DatePicker
+                     label="Hasta"
+                     value={toDate}
+                     onChange={(value) => {
+                        setToDate(value);
+                        setPage(1);
+                     }}
+                     placeholder="Fecha fin"
+                     minDate={fromDate || undefined}
+                  />
 
                   {/* Botón limpiar filtros */}
                   <div className="flex items-end">
@@ -247,10 +240,10 @@ export function AuditPage() {
                         onClick={() => {
                            setActionFilter('');
                            setFromDate(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
-                           setToDate(format(endOfMonth(new Date()), 'yyyy-MM-dd'));
+                           setToDate(format(new Date(), 'yyyy-MM-dd'));
                            setPage(1);
                         }}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                        className="w-full px-4 py-2 border border-default rounded-lg bg-tertiary text-secondary hover:bg-surface-hover transition-colors"
                      >
                         Limpiar Filtros
                      </button>

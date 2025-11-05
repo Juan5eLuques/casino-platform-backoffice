@@ -22,16 +22,16 @@ export function UsuariosCard({ data, onRefresh }: UsuariosCardProps) {
    }));
 
    return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full flex flex-col">
+      <div className="bg-secondary rounded-2xl shadow-xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 border border-default h-full flex flex-col">
          {/* Header */}
          <div className="flex justify-between items-start mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3">
-               <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-2 sm:p-3 rounded-xl shadow-lg">
+               <div className="bg-gradient-to-br from-brand-primary to-brand-primary-hover p-2 sm:p-3 rounded-xl shadow-lg">
                   <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                </div>
                <div>
-                  <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios</h3>
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-0.5 sm:mt-1">
+                  <h3 className="text-xs sm:text-sm font-medium text-text-secondary">Usuarios</h3>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-text-primary mt-0.5 sm:mt-1">
                      {totalPlayers.toLocaleString()}
                   </p>
                </div>
@@ -39,16 +39,16 @@ export function UsuariosCard({ data, onRefresh }: UsuariosCardProps) {
             {onRefresh && (
                <button
                   onClick={onRefresh}
-                  className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 hover:bg-surface-hover rounded-lg transition-colors"
                   aria-label="Actualizar"
                >
-                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-text-tertiary hover:text-text-secondary" />
                </button>
             )}
          </div>
 
          {/* Active Players Badge */}
-         <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6 self-start bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+         <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6 self-start bg-status-success-bg text-status-success-text">
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="font-semibold text-xs sm:text-sm">
                {activePercent.toFixed(1)}% activos
@@ -57,33 +57,33 @@ export function UsuariosCard({ data, onRefresh }: UsuariosCardProps) {
 
          {/* Players Stats */}
          <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <div className="bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-lg">
+            <div className="bg-status-success-bg p-3 sm:p-4 rounded-lg">
                <div className="flex items-center gap-1.5 mb-2">
-                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
-                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">Activos</span>
+                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-status-success-text" />
+                  <span className="text-[10px] sm:text-xs text-text-secondary">Activos</span>
                </div>
-               <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
+               <p className="text-xl sm:text-2xl font-bold text-status-success-text">
                   {breakdown.jugadoresActivos.toLocaleString()}
                </p>
-               <div className="mt-2 w-full bg-green-200 dark:bg-green-900/40 rounded-full h-1.5">
+               <div className="mt-2 w-full bg-status-success-border rounded-full h-1.5">
                   <div
-                     className="bg-green-600 dark:bg-green-400 rounded-full h-1.5 transition-all duration-500"
+                     className="bg-status-success-text rounded-full h-1.5 transition-all duration-500"
                      style={{ width: `${activePercent}%` }}
                   />
                </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4 rounded-lg">
+            <div className="bg-tertiary p-3 sm:p-4 rounded-lg">
                <div className="flex items-center gap-1.5 mb-2">
-                  <UserX className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
-                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">Inactivos</span>
+                  <UserX className="w-4 h-4 sm:w-5 sm:h-5 text-text-secondary" />
+                  <span className="text-[10px] sm:text-xs text-text-secondary">Inactivos</span>
                </div>
-               <p className="text-xl sm:text-2xl font-bold text-gray-600 dark:text-gray-400">
+               <p className="text-xl sm:text-2xl font-bold text-text-secondary">
                   {breakdown.jugadoresInactivos.toLocaleString()}
                </p>
-               <div className="mt-2 w-full bg-gray-200 dark:bg-gray-600/40 rounded-full h-1.5">
+               <div className="mt-2 w-full bg-border-subtle rounded-full h-1.5">
                   <div
-                     className="bg-gray-600 dark:bg-gray-400 rounded-full h-1.5 transition-all duration-500"
+                     className="bg-text-secondary rounded-full h-1.5 transition-all duration-500"
                      style={{ width: `${100 - activePercent}%` }}
                   />
                </div>
@@ -91,10 +91,10 @@ export function UsuariosCard({ data, onRefresh }: UsuariosCardProps) {
          </div>
 
          {/* Agents Section */}
-         <div className="pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700 mb-4 sm:mb-6">
+         <div className="pt-3 sm:pt-4 border-t border-default mb-4 sm:mb-6">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
-               <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-               <h4 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+               <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary" />
+               <h4 className="text-xs sm:text-sm font-semibold text-text-primary">
                   Agentes por Nivel
                </h4>
             </div>
@@ -132,17 +132,17 @@ export function UsuariosCard({ data, onRefresh }: UsuariosCardProps) {
          </div>
 
          {/* Agents Summary */}
-         <div className="pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
+         <div className="pt-3 sm:pt-4 border-t border-border-primary mt-auto">
             <div className="grid grid-cols-2 gap-2">
-               <div className="bg-purple-50 dark:bg-purple-900/20 p-2 sm:p-3 rounded-lg text-center">
-                  <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mb-1">Total Agentes</p>
-                  <p className="text-base sm:text-lg font-bold text-purple-600 dark:text-purple-400">
+               <div className="bg-brand-bg-muted p-2 sm:p-3 rounded-lg text-center">
+                  <p className="text-[10px] sm:text-xs text-secondary mb-1">Total Agentes</p>
+                  <p className="text-base sm:text-lg font-bold text-brand-primary">
                      {data.totalAgentes.toLocaleString()}
                   </p>
                </div>
-               <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 sm:p-3 rounded-lg text-center">
-                  <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mb-1">Niveles</p>
-                  <p className="text-base sm:text-lg font-bold text-indigo-600 dark:text-indigo-400">
+               <div className="bg-brand-bg-muted p-2 sm:p-3 rounded-lg text-center">
+                  <p className="text-[10px] sm:text-xs text-secondary mb-1">Niveles</p>
+                  <p className="text-base sm:text-lg font-bold text-brand-primary">
                      {agentData.length}
                   </p>
                </div>

@@ -58,15 +58,15 @@ export function DashboardHeader({
    };
 
    return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-6 mb-6 border border-gray-100 dark:border-gray-700">
-         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Title & Last Update */}
+      <div className="bg-secondary rounded-2xl shadow-xl p-4 sm:p-6 mb-6 border border-default">
+         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Title & Subtitle */}
             <div>
-               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">
+               <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-1">
                   Dashboard
                </h1>
                {lastUpdate && (
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                  <p className="text-xs sm:text-sm text-secondary flex items-center gap-1.5">
                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                      Actualizado {formatTimeAgo(new Date(lastUpdate))}
                   </p>
@@ -76,14 +76,14 @@ export function DashboardHeader({
             {/* Controls */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                {/* Scope Selector */}
-               <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 gap-1">
+               <div className="flex bg-tertiary rounded-lg p-1 gap-1">
                   {scopeButtons.map(({ value, label, icon: Icon }) => (
                      <button
                         key={value}
                         onClick={() => onScopeChange(value)}
                         className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${scope === value
-                           ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                           : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                           ? 'bg-secondary text-primary shadow-sm'
+                           : 'text-secondary hover:text-primary'
                            }`}
                      >
                         <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -93,22 +93,22 @@ export function DashboardHeader({
                </div>
 
                {/* Quick Period Buttons */}
-               <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 gap-1">
+               <div className="flex bg-tertiary rounded-lg p-1 gap-1">
                   <button
                      onClick={() => handleQuickPeriod('today')}
-                     className="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white transition-all"
+                     className="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-secondary hover:bg-secondary hover:text-primary transition-all"
                   >
                      Hoy
                   </button>
                   <button
                      onClick={() => handleQuickPeriod('week')}
-                     className="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white transition-all"
+                     className="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-secondary hover:bg-secondary hover:text-primary transition-all"
                   >
                      7d
                   </button>
                   <button
                      onClick={() => handleQuickPeriod('month')}
-                     className="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white transition-all"
+                     className="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-secondary hover:bg-secondary hover:text-primary transition-all"
                   >
                      30d
                   </button>
@@ -118,7 +118,7 @@ export function DashboardHeader({
                <div className="flex gap-2">
                   <button
                      onClick={onRefresh}
-                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium transition-colors shadow-lg hover:shadow-xl"
+                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-primary hover:bg-brand-primary-hover text-white text-xs sm:text-sm font-medium transition-colors shadow-lg hover:shadow-xl"
                   >
                      <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
                      <span className="hidden sm:inline">Actualizar</span>
@@ -127,8 +127,8 @@ export function DashboardHeader({
                   <button
                      onClick={() => onAutoRefreshChange(!autoRefresh)}
                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${autoRefresh
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-2 border-green-500'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? 'bg-status-success-bg text-status-success-text border-2 border-status-success-border'
+                        : 'bg-tertiary text-secondary hover:bg-surface-hover'
                         }`}
                   >
                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />

@@ -58,12 +58,12 @@ export function ApiConnectionTest() {
   const brandInfo = getBrandInfo();
 
   return (
-    <div className="fixed bottom-4 right-4 p-4 bg-white dark:bg-dark-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-w-md">
-      <h3 className="font-bold mb-2 text-gray-900 dark:text-white">
+    <div className="fixed bottom-4 right-4 p-4 bg-secondary border border-default rounded-lg shadow-lg max-w-md">
+      <h3 className="font-bold mb-2 text-primary">
         🔌 API Multi-Tenant Test
       </h3>
 
-      <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 space-y-1">
+      <div className="text-xs text-secondary mb-2 space-y-1">
         <div><strong>Dominio:</strong> {config.domain}</div>
         <div><strong>API:</strong> {config.api.baseURL}</div>
         {brandInfo && (

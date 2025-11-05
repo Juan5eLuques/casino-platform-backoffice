@@ -59,13 +59,13 @@ export function GamesPagination({
    };
 
    return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
+      <div className="bg-secondary rounded-xl shadow-lg p-4 sm:p-6 border border-default">
          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Info */}
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-               Mostrando <span className="font-semibold text-gray-900 dark:text-white">{startItem}</span> a{' '}
-               <span className="font-semibold text-gray-900 dark:text-white">{endItem}</span> de{' '}
-               <span className="font-semibold text-gray-900 dark:text-white">{totalCount}</span> juegos
+            <div className="text-sm text-secondary">
+               Mostrando <span className="font-semibold text-primary">{startItem}</span> a{' '}
+               <span className="font-semibold text-primary">{endItem}</span> de{' '}
+               <span className="font-semibold text-primary">{totalCount}</span> juegos
             </div>
 
             {/* Pagination Controls */}
@@ -74,20 +74,20 @@ export function GamesPagination({
                <button
                   onClick={() => onPageChange(1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-default hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Primera página"
                >
-                  <ChevronsLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <ChevronsLeft className="w-5 h-5 text-secondary" />
                </button>
 
                {/* Previous Page */}
                <button
                   onClick={() => onPageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-default hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Página anterior"
                >
-                  <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <ChevronLeft className="w-5 h-5 text-secondary" />
                </button>
 
                {/* Page Numbers */}
@@ -98,8 +98,8 @@ export function GamesPagination({
                            key={index}
                            onClick={() => onPageChange(page)}
                            className={`min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium transition-all ${currentPage === page
-                                 ? 'bg-blue-600 text-white shadow-lg'
-                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                              ? 'bg-brand-secondary text-white shadow-lg'
+                              : 'bg-tertiary text-secondary hover:bg-surface-hover'
                               }`}
                         >
                            {page}
@@ -107,7 +107,7 @@ export function GamesPagination({
                      ) : (
                         <span
                            key={index}
-                           className="px-2 py-2 text-gray-400 dark:text-gray-600"
+                           className="px-2 py-2 text-tertiary"
                         >
                            {page}
                         </span>
@@ -116,8 +116,8 @@ export function GamesPagination({
                </div>
 
                {/* Mobile: Current Page Indicator */}
-               <div className="sm:hidden px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+               <div className="sm:hidden px-4 py-2 bg-tertiary rounded-lg">
+                  <span className="text-sm font-medium text-primary">
                      {currentPage} / {totalPages}
                   </span>
                </div>
@@ -126,32 +126,32 @@ export function GamesPagination({
                <button
                   onClick={() => onPageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-default hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Página siguiente"
                >
-                  <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <ChevronRight className="w-5 h-5 text-secondary" />
                </button>
 
                {/* Last Page */}
                <button
                   onClick={() => onPageChange(totalPages)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-default hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Última página"
                >
-                  <ChevronsRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <ChevronsRight className="w-5 h-5 text-secondary" />
                </button>
             </div>
 
             {/* Page Size Selector */}
             <div className="flex items-center gap-2">
-               <label className="text-sm text-gray-600 dark:text-gray-400">
+               <label className="text-sm text-secondary">
                   Por página:
                </label>
                <select
                   value={pageSize}
                   onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="px-3 py-2 border border-default rounded-lg bg-tertiary text-primary text-sm focus:ring-2 focus:ring-brand-secondary focus:border-transparent transition-all"
                >
                   <option value={12}>12</option>
                   <option value={24}>24</option>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, User, Crown, Shield, UserCheck, Edit, Trash2, Minus, Network, ChevronDown } from 'lucide-react';
 import { FilterButtonGroup } from '@/components/FilterButtonGroup';
 import { UserTree } from '@/components/UserTree';
+import { DatePicker } from '@/components/ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -85,27 +86,27 @@ const BalanceModal = ({ user, action, onConfirm, onCancel }: {
    return (
       <form onSubmit={handleSubmit} className="space-y-4">
          <div className="text-center">
-            <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
-               {action === 'send' ? 'Enviar fondos a' : 'Retirar fondos de'} <strong className="text-gray-900 dark:text-white">{user?.username}</strong>
+            <p className="text-secondary text-sm sm:text-base">
+               {action === 'send' ? 'Enviar fondos a' : 'Retirar fondos de'} <strong className="text-primary">{user?.username}</strong>
             </p>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-               Balance actual: <span className="font-mono font-semibold text-gray-900 dark:text-white">${user?.walletBalance?.toLocaleString() || '0.00'}</span>
+            <p className="text-xs sm:text-sm text-tertiary mt-1">
+               Balance actual: <span className="font-mono font-semibold text-primary">${user?.walletBalance?.toLocaleString() || '0.00'}</span>
             </p>
          </div>
 
          <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-xs sm:text-sm font-medium text-secondary mb-1">
                Cantidad
             </label>
             <div className="relative">
-               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-tertiary">$</span>
                <input
                   type="number"
                   step="0.01"
                   min="0.01"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-8 pr-4 py-2 border border-default rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-tertiary text-primary"
                   placeholder="0.00"
                   required
                />
@@ -116,15 +117,15 @@ const BalanceModal = ({ user, action, onConfirm, onCancel }: {
             <button
                type="button"
                onClick={onCancel}
-               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+               className="px-4 py-2 text-secondary border border-default rounded-lg hover:bg-surface-hover transition-colors"
             >
                Cancelar
             </button>
             <button
                type="submit"
                className={`px-4 py-2 text-white rounded-lg transition-colors ${action === 'send'
-                  ? 'bg-green-600 hover:bg-green-700'
-                  : 'bg-red-600 hover:bg-red-700'
+                  ? 'bg-status-success-text hover:bg-status-success-border'
+                  : 'bg-status-error-text hover:bg-status-error-border'
                   }`}
             >
                {action === 'send' ? 'Enviar Fondos' : 'Retirar Fondos'}
@@ -136,18 +137,18 @@ const BalanceModal = ({ user, action, onConfirm, onCancel }: {
 
 const getRoleIcon = (userType: string, role?: string) => {
    if (userType === 'PLAYER') {
-      return <User className="h-4 w-4 text-blue-500" />;
+      return <User className="h-4 w-4 text-brand-primary" />;
    }
 
    switch (role) {
       case 'SUPER_ADMIN':
-         return <Crown className="h-4 w-4 text-purple-500" />;
+         return <Crown className="h-4 w-4 text-brand-primary" />;
       case 'BRAND_ADMIN':
-         return <Shield className="h-4 w-4 text-green-500" />;
+         return <Shield className="h-4 w-4 text-status-success-text" />;
       case 'CASHIER':
-         return <UserCheck className="h-4 w-4 text-orange-500" />;
+         return <UserCheck className="h-4 w-4 text-status-warning-text" />;
       default:
-         return <User className="h-4 w-4 text-gray-500" />;
+         return <User className="h-4 w-4 text-tertiary" />;
    }
 };
 
@@ -167,8 +168,15 @@ export function UsersPage() {
    const [search, setSearch] = useState('');
    const [userTypeFilter, setUserTypeFilter] = useState<'BACKOFFICE' | 'PLAYER' | ''>('');
    const [roleFilter, setRoleFilter] = useState<'SUPER_ADMIN' | 'BRAND_ADMIN' | 'CASHIER' | 'PLAYER' | ''>('');
-   const [createdFrom, setCreatedFrom] = useState('');
-   const [createdTo, setCreatedTo] = useState('');
+
+   // Fechas por defecto: primer día del mes hasta hoy
+   const today = new Date();
+   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+   const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+   const [createdFrom, setCreatedFrom] = useState(formatDate(firstDayOfMonth));
+   const [createdTo, setCreatedTo] = useState(formatDate(today));
+
    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
    const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
    const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -372,7 +380,7 @@ export function UsersPage() {
          header: 'Balance',
          render: (user: any) => (
             <div className="flex items-center space-x-1 sm:space-x-2 min-w-[140px]">
-               <span className="font-mono font-semibold text-xs sm:text-sm text-gray-900 dark:text-white whitespace-nowrap">
+               <span className="font-mono font-semibold text-xs sm:text-sm text-primary whitespace-nowrap">
                   ${user.walletBalance?.toLocaleString() || '0.00'}
                </span>
                <div className="flex space-x-1">
@@ -382,7 +390,7 @@ export function UsersPage() {
                         setBalanceAction('send');
                         setIsBalanceModalOpen(true);
                      }}
-                     className="p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition-colors"
+                     className="p-1 text-status-success-text hover:bg-status-success-bg rounded transition-colors"
                      title="Enviar fondos"
                   >
                      <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -393,7 +401,7 @@ export function UsersPage() {
                         setBalanceAction('remove');
                         setIsBalanceModalOpen(true);
                      }}
-                     className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                     className="p-1 text-status-error-text hover:bg-status-error-bg rounded transition-colors"
                      title="Retirar fondos"
                   >
                      <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -416,10 +424,10 @@ export function UsersPage() {
          header: 'Creado por',
          render: (user: any) => (
             <div className="text-xs sm:text-sm min-w-[100px]">
-               <div className="font-medium text-gray-900 dark:text-white truncate">
+               <div className="font-medium text-primary truncate">
                   {user.createdByUsername || 'Sistema'}
                </div>
-               <div className="text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs truncate">
+               <div className="text-tertiary text-[10px] sm:text-xs truncate">
                   {user.createdByRole || 'Sistema'}
                </div>
             </div>
@@ -431,8 +439,8 @@ export function UsersPage() {
          render: (user: any) => (
             <span
                className={`inline-flex px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold rounded-full whitespace-nowrap ${user.status === 'ACTIVE'
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
-                  : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'
+                  ? 'bg-status-success-bg text-status-success-text'
+                  : 'bg-status-error-bg text-status-error-text'
                   }`}
             >
                {user.status === 'ACTIVE' ? 'Activo' : 'Inactivo'}
@@ -606,46 +614,38 @@ export function UsersPage() {
 
             {/* Filtros de fecha - Responsive */}
             <div className="space-y-3">
-               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+               <label className="block text-xs sm:text-sm font-medium text-primary">
                   Fecha de Creación
                </label>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  <div>
-                     <label className="block text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        Desde
-                     </label>
-                     <input
-                        type="date"
-                        className="w-full px-3 py-2 sm:py-2.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-bg-tertiary text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        value={createdFrom}
-                        onChange={(e) => setCreatedFrom(e.target.value)}
-                     />
-                  </div>
-                  <div>
-                     <label className="block text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        Hasta
-                     </label>
-                     <input
-                        type="date"
-                        className="w-full px-3 py-2 sm:py-2.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-bg-tertiary text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        value={createdTo}
-                        onChange={(e) => setCreatedTo(e.target.value)}
-                     />
-                  </div>
+                  <DatePicker
+                     label="Desde"
+                     value={createdFrom}
+                     onChange={setCreatedFrom}
+                     placeholder="Seleccionar fecha"
+                     maxDate={createdTo || undefined}
+                  />
+                  <DatePicker
+                     label="Hasta"
+                     value={createdTo}
+                     onChange={setCreatedTo}
+                     placeholder="Seleccionar fecha"
+                     minDate={createdFrom || undefined}
+                  />
                </div>
             </div>
 
             {/* Botón para limpiar filtros */}
-            {(search || userTypeFilter || roleFilter || createdFrom || createdTo) && (
+            {(search || userTypeFilter || roleFilter) && (
                <button
                   onClick={() => {
                      setSearch('');
                      setUserTypeFilter('');
                      setRoleFilter('');
-                     setCreatedFrom('');
-                     setCreatedTo('');
+                     setCreatedFrom(formatDate(firstDayOfMonth));
+                     setCreatedTo(formatDate(today));
                   }}
-                  className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-secondary bg-tertiary hover:bg-surface-hover rounded-lg transition-colors border border-default"
                >
                   Limpiar filtros
                </button>
@@ -803,14 +803,14 @@ export function UsersPage() {
                         setIsCreateModalOpen(false);
                         reset();
                      }}
-                     className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                     className="px-4 py-2 text-secondary border border-default rounded-lg hover:bg-tertiary transition-colors"
                   >
                      Cancelar
                   </button>
                   <button
                      type="submit"
                      disabled={createUserMutation.isPending}
-                     className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50"
+                     className="px-4 py-2 bg-brand-secondary text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
                   >
                      {createUserMutation.isPending
                         ? 'Creando...'

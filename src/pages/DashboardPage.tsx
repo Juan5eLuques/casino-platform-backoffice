@@ -7,6 +7,7 @@ import { AlertasCard } from '../components/dashboard/AlertasCard';
 import { CasinoCard } from '../components/dashboard/CasinoCard';
 import { FichasCard } from '../components/dashboard/FichasCard';
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
+import { BrandSwitcher } from '../components/BrandSwitcher';
 
 export function DashboardPage() {
    const [scope, setScope] = useState<DashboardScope>('TREE');
@@ -27,10 +28,10 @@ export function DashboardPage() {
 
    if (isLoading) {
       return (
-         <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+         <div className="flex items-center justify-center min-h-screen bg-primary p-6">
             <div className="text-center">
-               <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-               <p className="text-gray-600 dark:text-gray-400">Cargando dashboard...</p>
+               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+               <p className="mt-4 text-text-secondary">Cargando dashboard...</p>
             </div>
          </div>
       );
@@ -38,8 +39,8 @@ export function DashboardPage() {
 
    if (error) {
       return (
-         <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-6 py-4 rounded-lg max-w-md">
+         <div className="flex items-center justify-center min-h-screen bg-primary p-6">
+            <div className="bg-status-error-bg border border-status-error-border text-status-error-text px-6 py-4 rounded-lg max-w-md">
                <div className="flex items-center gap-3 mb-2">
                   <AlertCircle className="w-6 h-6" />
                   <p className="font-bold text-lg">Error al cargar el dashboard</p>
@@ -47,7 +48,7 @@ export function DashboardPage() {
                <p className="text-sm">{error instanceof Error ? error.message : 'Error desconocido'}</p>
                <button
                   onClick={handleRefresh}
-                  className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+                  className="mt-4 px-4 py-2 bg-btn-danger-bg text-btn-danger-text rounded-md hover:bg-btn-danger-bg-hover transition-colors text-sm font-medium"
                >
                   Reintentar
                </button>
@@ -58,8 +59,8 @@ export function DashboardPage() {
 
    if (!data) {
       return (
-         <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="text-center text-gray-600 dark:text-gray-400">
+         <div className="flex items-center justify-center min-h-screen bg-primary">
+            <div className="text-center text-text-secondary">
                <p>No hay datos disponibles</p>
             </div>
          </div>
@@ -67,7 +68,7 @@ export function DashboardPage() {
    }
 
    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:p-6">
+      <div className="min-h-screen bg-primary md:p-6">
          <DashboardHeader
             scope={scope}
             onScopeChange={setScope}

@@ -112,7 +112,7 @@ export const CreateSubordinateForm = ({ isOpen, onClose, onSuccess }: CreateSubo
 
          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-               <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+               <label htmlFor="username" className="block text-sm font-medium text-secondary">
                   Username *
                </label>
                <input
@@ -120,18 +120,18 @@ export const CreateSubordinateForm = ({ isOpen, onClose, onSuccess }: CreateSubo
                   type="text"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${errors.username ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-tertiary text-primary ${errors.username ? 'border-status-error-border' : 'border-default'
                      }`}
                   placeholder="ej: cashier_juan"
                   disabled={loading}
                />
                {errors.username && (
-                  <p className="mt-1 text-sm text-red-600">{errors.username}</p>
+                  <p className="mt-1 text-sm text-status-error-text">{errors.username}</p>
                )}
             </div>
 
             <div>
-               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+               <label htmlFor="password" className="block text-sm font-medium text-secondary">
                   Contraseña *
                </label>
                <input
@@ -139,18 +139,18 @@ export const CreateSubordinateForm = ({ isOpen, onClose, onSuccess }: CreateSubo
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${errors.password ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-tertiary text-primary ${errors.password ? 'border-status-error-border' : 'border-default'
                      }`}
                   placeholder="Mínimo 8 caracteres"
                   disabled={loading}
                />
                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  <p className="mt-1 text-sm text-status-error-text">{errors.password}</p>
                )}
             </div>
 
             <div>
-               <label htmlFor="commissionRate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+               <label htmlFor="commissionRate" className="block text-sm font-medium text-secondary">
                   Comisión (%) - Opcional
                </label>
                <input
@@ -158,7 +158,7 @@ export const CreateSubordinateForm = ({ isOpen, onClose, onSuccess }: CreateSubo
                   type="number"
                   value={formData.commissionRate}
                   onChange={(e) => setFormData({ ...formData, commissionRate: parseFloat(e.target.value) || 0 })}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${errors.commissionRate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-tertiary text-primary ${errors.commissionRate ? 'border-status-error-border' : 'border-default'
                      }`}
                   min={0}
                   max={100}
@@ -166,11 +166,11 @@ export const CreateSubordinateForm = ({ isOpen, onClose, onSuccess }: CreateSubo
                   placeholder="0.0"
                   disabled={loading}
                />
-               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+               <p className="mt-1 text-xs text-tertiary">
                   Porcentaje de comisión que recibirás de las operaciones de este subordinado (0-100%)
                </p>
                {errors.commissionRate && (
-                  <p className="mt-1 text-sm text-red-600">{errors.commissionRate}</p>
+                  <p className="mt-1 text-sm text-status-error">{errors.commissionRate}</p>
                )}
             </div>
 
@@ -179,14 +179,14 @@ export const CreateSubordinateForm = ({ isOpen, onClose, onSuccess }: CreateSubo
                   type="button"
                   onClick={handleClose}
                   disabled={loading}
-                  className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 disabled:opacity-50"
+                  className="px-4 py-2 text-secondary hover:text-primary disabled:opacity-50"
                >
                   Cancelar
                </button>
                <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg flex items-center"
+                  className="px-4 py-2 bg-brand-secondary hover:opacity-90 disabled:opacity-50 text-white rounded-lg flex items-center transition-all"
                >
                   {loading ? (
                      <>

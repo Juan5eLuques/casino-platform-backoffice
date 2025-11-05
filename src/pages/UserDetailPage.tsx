@@ -246,36 +246,36 @@ export function UserDetailPage() {
    return (
       <div className="space-y-4 sm:space-y-6">
          {/* Header con botón de volver */}
-         <div className="pb-4 border-b border-gray-200 dark:border-gray-700 mb-6">
+         <div className="pb-4 border-b border-default mb-6">
             <div className="flex items-center space-x-3">
                <button
                   onClick={() => navigate('/users')}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-surface-hover rounded-lg transition-colors"
                   title="Volver a usuarios"
                >
-                  <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <ArrowLeft className="h-5 w-5 text-secondary" />
                </button>
                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Detalles del Usuario</h1>
-                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">Información completa y transacciones</p>
+                  <h1 className="text-2xl md:text-3xl font-bold text-primary">Detalles del Usuario</h1>
+                  <p className="text-sm md:text-base text-secondary mt-1">Información completa y transacciones</p>
                </div>
             </div>
          </div>
 
          {/* Información del Usuario */}
-         <div className="bg-white dark:bg-dark-bg-secondary rounded-lg shadow dark:shadow-gray-900/50 p-4 sm:p-6">
+         <div className="bg-secondary rounded-lg shadow p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-0 mb-6">
                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                     <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary-600 dark:text-primary-400" />
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-accent bg-opacity-10 rounded-full flex items-center justify-center flex-shrink-0">
+                     <User className="h-6 w-6 sm:h-8 sm:w-8 text-brand-primary" />
                   </div>
                   <div>
-                     <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{user.username}</h2>
+                     <h2 className="text-lg sm:text-xl font-bold text-primary">{user.username}</h2>
                      <div className="flex flex-wrap items-center gap-2 mt-1">
                         <span
                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status === 'ACTIVE'
-                              ? 'bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300'
-                              : 'bg-danger-100 dark:bg-danger-900/30 text-danger-800 dark:text-danger-300'
+                              ? 'bg-status-success-bg text-status-success-text'
+                              : 'bg-status-error-bg text-status-error-text'
                               }`}
                         >
                            {user.status === 'ACTIVE' ? 'Activo' : 'Inactivo'}
@@ -289,8 +289,8 @@ export function UserDetailPage() {
 
                {/* Balance destacado */}
                <div className="text-left sm:text-right w-full sm:w-auto">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Balance Actual</div>
-                  <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white font-mono">
+                  <div className="text-sm text-secondary">Balance Actual</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary font-mono">
                      ${user.walletBalance?.toLocaleString() || '0.00'}
                   </div>
                </div>
@@ -299,11 +299,11 @@ export function UserDetailPage() {
             {/* Grid de información */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                {user.email && (
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-bg-tertiary rounded-lg">
-                     <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  <div className="flex items-center space-x-3 p-3 bg-tertiary rounded-lg">
+                     <Mail className="h-5 w-5 text-tertiary flex-shrink-0" />
                      <div className="min-w-0">
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Email</div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.email}</div>
+                        <div className="text-xs text-secondary">Email</div>
+                        <div className="text-sm font-medium text-primary truncate">{user.email}</div>
                      </div>
                   </div>
                )}
@@ -345,53 +345,53 @@ export function UserDetailPage() {
 
          {/* Estadísticas de Transacciones */}
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <div className="bg-white dark:bg-dark-bg-secondary rounded-lg shadow dark:shadow-gray-900/50 p-4 sm:p-6">
+            <div className="bg-secondary rounded-lg shadow p-4 sm:p-6">
                <div className="flex items-center justify-between">
                   <div>
-                     <p className="text-sm text-gray-600 dark:text-gray-400">Total Ingresos</p>
-                     <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
+                     <p className="text-sm text-secondary">Total Ingresos</p>
+                     <p className="text-xl sm:text-2xl font-bold text-status-success-text font-mono">
                         +${totalIncome.toLocaleString()}
                      </p>
                   </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success-100 dark:bg-success-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                     <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-success-600 dark:text-success-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-status-success-bg rounded-full flex items-center justify-center flex-shrink-0">
+                     <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-status-success-text" />
                   </div>
                </div>
             </div>
 
-            <div className="bg-white dark:bg-dark-bg-secondary rounded-lg shadow dark:shadow-gray-900/50 p-4 sm:p-6">
+            <div className="bg-secondary rounded-lg shadow p-4 sm:p-6">
                <div className="flex items-center justify-between">
                   <div>
-                     <p className="text-sm text-gray-600 dark:text-gray-400">Total Egresos</p>
-                     <p className="text-xl sm:text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">
+                     <p className="text-sm text-secondary">Total Egresos</p>
+                     <p className="text-xl sm:text-2xl font-bold text-status-error-text font-mono">
                         -${totalExpense.toLocaleString()}
                      </p>
                   </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-danger-100 dark:bg-danger-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                     <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6 text-danger-600 dark:text-danger-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-status-error-bg rounded-full flex items-center justify-center flex-shrink-0">
+                     <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6 text-status-error-text" />
                   </div>
                </div>
             </div>
 
-            <div className="bg-white dark:bg-dark-bg-secondary rounded-lg shadow dark:shadow-gray-900/50 p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
+            <div className="bg-secondary rounded-lg shadow p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
                <div className="flex items-center justify-between">
                   <div>
-                     <p className="text-sm text-gray-600 dark:text-gray-400">Total Transacciones</p>
-                     <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                     <p className="text-sm text-secondary">Total Transacciones</p>
+                     <p className="text-xl sm:text-2xl font-bold text-primary">
                         {transactionsData?.pagination.total || 0}
                      </p>
                   </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                     <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600 dark:text-primary-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-accent bg-opacity-10 rounded-full flex items-center justify-center flex-shrink-0">
+                     <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                   </div>
                </div>
             </div>
          </div>
 
          {/* Tabla de Transacciones */}
-         <div className="bg-white dark:bg-dark-bg-secondary rounded-lg shadow dark:shadow-gray-900/50">
-            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-               <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+         <div className="bg-secondary rounded-lg shadow">
+            <div className="p-4 sm:p-6 border-b border-default">
+               <h2 className="text-base sm:text-lg font-semibold text-primary">
                   Historial de Transacciones
                </h2>
                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">

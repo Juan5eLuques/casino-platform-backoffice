@@ -20,16 +20,16 @@ export function CasinoCard({ data, onRefresh }: CasinoCardProps) {
    const holdPercentage = (netwin / jugado) * 100;
 
    return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full flex flex-col">
+      <div className="bg-secondary rounded-2xl shadow-xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 border border-default h-full flex flex-col">
          {/* Header */}
          <div className="flex justify-between items-start mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3">
-               <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 sm:p-3 rounded-xl shadow-lg">
+               <div className="bg-gradient-to-br from-brand-primary to-brand-primary-hover p-2 sm:p-3 rounded-xl shadow-lg">
                   <Gamepad2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                </div>
                <div>
-                  <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Casino</h3>
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-0.5 sm:mt-1">
+                  <h3 className="text-xs sm:text-sm font-medium text-secondary">Casino</h3>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mt-0.5 sm:mt-1">
                      {formatCurrency(netwin)}
                   </p>
                </div>
@@ -37,16 +37,16 @@ export function CasinoCard({ data, onRefresh }: CasinoCardProps) {
             {onRefresh && (
                <button
                   onClick={onRefresh}
-                  className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 hover:bg-surface-hover rounded-lg transition-colors"
                   aria-label="Actualizar"
                >
-                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-tertiary hover:text-secondary" />
                </button>
             )}
          </div>
 
          {/* Hold Percentage Badge */}
-         <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6 self-start bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+         <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6 self-start bg-brand-accent bg-opacity-10 text-brand-primary">
             <Target className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="font-semibold text-xs sm:text-sm">
                Hold: {formatPercent(holdPercentage)}
@@ -87,63 +87,63 @@ export function CasinoCard({ data, onRefresh }: CasinoCardProps) {
 
          {/* Metrics Grid */}
          <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-3 rounded-lg">
+            <div className="bg-status-info-bg p-2 sm:p-3 rounded-lg">
                <div className="flex items-center gap-1.5 mb-1">
-                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
-                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">Jugado</span>
+                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-status-info-text" />
+                  <span className="text-[10px] sm:text-xs text-secondary">Jugado</span>
                </div>
-               <p className="text-sm sm:text-base font-bold text-blue-600 dark:text-blue-400">
+               <p className="text-sm sm:text-base font-bold text-status-info-text">
                   {formatCurrency(jugado)}
                </p>
             </div>
 
-            <div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg">
+            <div className="bg-status-success-bg p-2 sm:p-3 rounded-lg">
                <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 dark:text-red-400" />
-                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">Pagado</span>
+                  <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-status-success-text" />
+                  <span className="text-[10px] sm:text-xs text-secondary">Pagado</span>
                </div>
-               <p className="text-sm sm:text-base font-bold text-red-600 dark:text-red-400">
+               <p className="text-sm sm:text-base font-bold text-status-success-text">
                   {formatCurrency(pagado)}
                </p>
             </div>
          </div>
 
          {/* KPIs */}
-         <div className="pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2 mt-auto">
-            <div className="flex items-center justify-between p-2 sm:p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+         <div className="pt-3 sm:pt-4 border-t border-default space-y-2 mt-auto">
+            <div className="flex items-center justify-between p-2 sm:p-3 bg-brand-accent bg-opacity-10 rounded-lg">
                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Percent className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Comisión</span>
+                  <Percent className="w-3 h-3 sm:w-4 sm:h-4 text-brand-primary flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-secondary">Comisión</span>
                </div>
                <div className="text-right">
-                  <div className="font-semibold text-purple-600 dark:text-purple-400 text-xs sm:text-sm">
+                  <div className="font-semibold text-brand-primary text-xs sm:text-sm">
                      {formatCurrency(comision)}
                   </div>
                </div>
             </div>
 
-            <div className="flex items-center justify-between p-2 sm:p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+            <div className="flex items-center justify-between p-2 sm:p-3 bg-status-success-bg rounded-lg">
                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Total a Pagar</span>
+                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-status-success-text flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-secondary">Total a Pagar</span>
                </div>
                <div className="text-right">
-                  <div className="font-bold text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm">
+                  <div className="font-bold text-status-success-text text-xs sm:text-sm">
                      {formatCurrency(totalAPagar)}
                   </div>
                </div>
             </div>
 
-            <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-               <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Rondas</span>
-               <span className="font-semibold text-gray-900 dark:text-white text-xs sm:text-sm">
+            <div className="flex items-center justify-between p-2 sm:p-3 bg-tertiary rounded-lg">
+               <span className="text-xs sm:text-sm text-secondary">Rondas</span>
+               <span className="font-semibold text-primary text-xs sm:text-sm">
                   {kpIs.rondasTotales.toLocaleString()}
                </span>
             </div>
 
-            <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-               <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Apuesta Promedio</span>
-               <span className="font-semibold text-gray-900 dark:text-white text-xs sm:text-sm">
+            <div className="flex items-center justify-between p-2 sm:p-3 bg-tertiary rounded-lg">
+               <span className="text-xs sm:text-sm text-secondary">Apuesta Promedio</span>
+               <span className="font-semibold text-primary text-xs sm:text-sm">
                   {formatCurrency(kpIs.apuestaPromedio)}
                </span>
             </div>

@@ -28,16 +28,16 @@ export function FilterButtonGroup<T extends string>({
                   'border',
                   'flex items-center gap-2',
                   'hover:shadow-md',
-                  'focus:outline-none focus:ring-2 focus:ring-offset-2',
+                  'focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2',
                   value === option.value
-                     ? 'bg-primary-600 text-white border-primary-600 shadow-md dark:bg-primary-500'
-                     : 'bg-white dark:bg-dark-bg-secondary text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                     ? 'bg-brand-secondary text-white border-brand-secondary shadow-md'
+                     : 'bg-secondary text-secondary border-default hover:bg-surface-hover'
                )}
             >
                {option.icon && (
                   <span className={cn(
                      'w-4 h-4',
-                     value === option.value ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                     value === option.value ? 'text-white' : 'text-tertiary'
                   )}>
                      {option.icon}
                   </span>

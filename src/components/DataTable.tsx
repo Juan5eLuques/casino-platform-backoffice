@@ -79,21 +79,21 @@ export function DataTable<T extends Record<string, any>>({
    return (
       <div className="space-y-4">
          {/* Table */}
-         <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-               <thead className="bg-gray-50 dark:bg-gray-800">
+         <div className="overflow-x-auto rounded-lg border border-default">
+            <table className="min-w-full divide-y divide-default">
+               <thead className="bg-tertiary">
                   <tr>
                      {columns.map((column) => (
                         <th
                            key={column.key}
-                           className={`px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                           className={`px-6 py-3 text-left text-xs font-medium text-secondary uppercase tracking-wider ${column.sortable ? 'cursor-pointer hover:bg-surface-hover' : ''
                               } ${column.className || ''}`}
                            onClick={() => column.sortable && handleSort(column.key)}
                         >
                            <div className="flex items-center space-x-1">
                               <span>{column.header}</span>
                               {column.sortable && sortColumn === column.key && (
-                                 <span className="text-indigo-600 dark:text-indigo-400">
+                                 <span className="text-brand-primary">
                                     {sortDirection === 'asc' ? '↑' : '↓'}
                                  </span>
                               )}
@@ -101,26 +101,26 @@ export function DataTable<T extends Record<string, any>>({
                         </th>
                      ))}
                      {actions && (
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
                            Acciones
                         </th>
                      )}
                   </tr>
                </thead>
-               <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+               <tbody className="bg-secondary divide-y divide-default">
                   {sortedData.map((item) => (
                      <tr
                         key={keyExtractor(item)}
                         className={`${onRowClick
-                              ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors'
-                              : ''
+                           ? 'cursor-pointer hover:bg-surface-hover transition-colors'
+                           : ''
                            }`}
                         onClick={() => onRowClick?.(item)}
                      >
                         {columns.map((column) => (
                            <td
                               key={column.key}
-                              className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 ${column.className || ''
+                              className={`px-6 py-4 whitespace-nowrap text-sm text-primary ${column.className || ''
                                  }`}
                            >
                               {column.render ? column.render(item) : item[column.key]}
@@ -141,9 +141,9 @@ export function DataTable<T extends Record<string, any>>({
 
          {/* Pagination */}
          {pagination && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="flex items-center justify-between px-4 py-3 bg-secondary border border-default rounded-lg">
                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="text-sm text-secondary">
                      Mostrando{' '}
                      <span className="font-medium">
                         {(pagination.page - 1) * pagination.pageSize + 1}
@@ -196,8 +196,8 @@ export function DataTable<T extends Record<string, any>>({
                               key={pageNum}
                               onClick={() => pagination.onPageChange(pageNum)}
                               className={`px-3 py-1 rounded ${pagination.page === pageNum
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                 ? 'bg-indigo-600 text-white'
+                                 : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                                  }`}
                            >
                               {pageNum}

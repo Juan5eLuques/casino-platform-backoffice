@@ -8,7 +8,7 @@ export function DashboardLayout() {
    const { sidebarCollapsed } = useUIStore();
 
    return (
-      <div className="h-screen flex bg-gray-50 dark:bg-dark-bg">
+      <div className="h-screen flex bg-primary">
          {/* Sidebar */}
          <Sidebar />
 

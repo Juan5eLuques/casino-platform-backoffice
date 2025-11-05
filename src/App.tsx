@@ -13,7 +13,8 @@ import { BrandsPage } from './pages/BrandsPage';
 import { GamesPage } from './pages/GamesPage';
 import { AuditPage } from './pages/AuditPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { CashierDashboard } from './pages/admin/CashierDashboard';
+import { ComponentsShowcasePage } from './pages/ComponentsShowcasePage';
+import { ThemeDevelopmentPage } from './pages/dev/ThemeDevelopmentPage';
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -86,7 +87,6 @@ function App() {
             >
                <Route index element={<Navigate to="/dashboard" replace />} />
                <Route path="dashboard" element={<DashboardPage />} />
-               <Route path="cashier-dashboard" element={<CashierDashboard />} />
                <Route path="operators" element={<OperatorsPage />} />
                <Route path="players" element={<PlayersPage />} />
                <Route path="users" element={<UsersPage />} />
