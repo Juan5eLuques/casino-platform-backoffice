@@ -66,9 +66,17 @@ function App() {
       }
       
       // Update theme-color meta tag for mobile browsers
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      const themeColor = darkMode ? '#0f172a' : '#ffffff';
+      let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      
       if (metaThemeColor) {
-         metaThemeColor.setAttribute('content', darkMode ? '#0f172a' : '#ffffff');
+         metaThemeColor.setAttribute('content', themeColor);
+      } else {
+         // Create if doesn't exist
+         metaThemeColor = document.createElement('meta');
+         metaThemeColor.setAttribute('name', 'theme-color');
+         metaThemeColor.setAttribute('content', themeColor);
+         document.head.appendChild(metaThemeColor);
       }
    }, [darkMode]);
 
