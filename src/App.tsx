@@ -17,6 +17,8 @@ import BannersPage from './pages/BannersPage';
 import ColorsPage from './pages/ColorsPage';
 import PublicPage from './pages/PublicPage';
 
+
+
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
