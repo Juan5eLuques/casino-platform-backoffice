@@ -64,6 +64,12 @@ function App() {
       } else {
          document.documentElement.classList.remove('dark');
       }
+      
+      // Update theme-color meta tag for mobile browsers
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+         metaThemeColor.setAttribute('content', darkMode ? '#0f172a' : '#ffffff');
+      }
    }, [darkMode]);
 
    return (
