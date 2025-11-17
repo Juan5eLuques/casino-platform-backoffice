@@ -1,5 +1,4 @@
 import axios from 'axios';
-import toast from 'react-hot-toast';
 
 // ✅ Configuración según especificaciones para JWT cookie HttpOnly + CORS
 // 🔥 IMPORTANTE: En producción usa PROXY de Netlify - ver NETLIFY-PROXY-GUIDE.md
@@ -59,7 +58,7 @@ apiClient.interceptors.response.use(
 
       // Handle common HTTP errors
       if (error.response) {
-         const { status, data } = error.response;
+         const { status } = error.response;
 
          switch (status) {
             case 401:
@@ -73,40 +72,14 @@ apiClient.interceptors.response.use(
                   console.warn('Request Headers:', error.config?.headers);
                   console.warn('Response Data:', error.response?.data);
 
-                  // NO hacer redirect automático - dejar que el componente maneje el error
-                  // toast.error('Error de autenticación. Verifica tu sesión.');
-
                   // Solo redirigir si es un endpoint crítico
                   if (error.config?.url?.includes('/me') || error.config?.url?.includes('/profile')) {
                      console.warn('Critical auth endpoint failed - redirecting to login');
-                     toast.error('Sesión expirada. Por favor, inicia sesión nuevamente.');
                      window.location.href = '/login';
                   }
                }
                break;
-            case 403:
-               toast.error('No tienes permisos para realizar esta acción.');
-               break;
-            case 404:
-               toast.error('Recurso no encontrado.');
-               break;
-            case 422:
-               // Validation errors
-               const errorMessage = data?.message || 'Error de validación';
-               toast.error(errorMessage);
-               break;
-            case 500:
-               toast.error('Error interno del servidor. Intenta nuevamente.');
-               break;
-            default:
-               toast.error('Ha ocurrido un error inesperado.');
          }
-      } else if (error.request) {
-         // Network error
-         toast.error('Error de conexión. Verifica tu conexión a internet.');
-      } else {
-         // Other error
-         toast.error('Ha ocurrido un error inesperado.');
       }
 
       return Promise.reject(error);

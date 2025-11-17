@@ -477,6 +477,9 @@ export interface UserBalanceResponse {
    userType: 'BACKOFFICE' | 'PLAYER';
    username: string;
    balance: number;
+   role?: string;
+   brandId?: string;
+   brandName?: string;
 }
 
 // Notification types
@@ -522,3 +525,5 @@ export interface UserTreeParams {
    maxDepth?: number;
    includeInactive?: boolean;
 }
+// Re-export brand assets types
+export * from './brandAssets';

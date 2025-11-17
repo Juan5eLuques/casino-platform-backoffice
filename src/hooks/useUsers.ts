@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from '@/api/users';
-import toast from 'react-hot-toast';
 import type { UserFilters, CreateUserForm, UpdateUserForm } from '@/types';
 
 // Query keys para todos los usuarios (unificado)
@@ -70,13 +69,8 @@ export const useCreateUser = () => {
 
    return useMutation({
       mutationFn: (userData: CreateUserForm) => usersApi.createUser(userData),
-      onSuccess: (data) => {
+      onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
-         const userType = data.userType === 'PLAYER' ? 'jugador' : 'usuario de backoffice';
-         toast.success(`${userType.charAt(0).toUpperCase() + userType.slice(1)} creado exitosamente`);
-      },
-      onError: (error: Error) => {
-         toast.error(error.message || 'Error al crear usuario');
       },
    });
 };
@@ -95,10 +89,6 @@ export const useUpdateUser = () => {
       onSuccess: (_, variables) => {
          queryClient.invalidateQueries({ queryKey: usersKeys.detail(variables.userId) });
          queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
-         toast.success('Usuario actualizado exitosamente');
-      },
-      onError: (error: Error) => {
-         toast.error(error.message || 'Error al actualizar usuario');
       },
    });
 };
@@ -113,10 +103,6 @@ export const useDeleteUser = () => {
       mutationFn: (userId: string) => usersApi.deleteUser(userId),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
-         toast.success('Usuario eliminado exitosamente');
-      },
-      onError: (error: Error) => {
-         toast.error(error.message || 'Error al eliminar usuario');
       },
    });
 };
@@ -131,12 +117,6 @@ export const useChangeUserPassword = () => {
          currentPassword: string;
          newPassword: string;
       }) => usersApi.changeUserPassword(userId, currentPassword, newPassword),
-      onSuccess: () => {
-         toast.success('Contraseña actualizada exitosamente');
-      },
-      onError: (error: Error) => {
-         toast.error(error.message || 'Error al cambiar contraseña');
-      },
    });
 };
 
@@ -149,11 +129,5 @@ export const useResetUserPassword = () => {
          userId: string;
          newPassword: string;
       }) => usersApi.resetUserPassword(userId, newPassword, true),
-      onSuccess: () => {
-         toast.success('Contraseña reseteada. El usuario deberá cambiarla en el próximo login.');
-      },
-      onError: (error: Error) => {
-         toast.error(error.message || 'Error al resetear contraseña');
-      },
    });
 };

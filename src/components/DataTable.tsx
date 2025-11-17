@@ -63,14 +63,14 @@ export function DataTable<T extends Record<string, any>>({
    if (isLoading) {
       return (
          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-secondary"></div>
          </div>
       );
    }
 
    if (data.length === 0) {
       return (
-         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+         <div className="text-center py-12 text-secondary">
             <p className="text-lg">{emptyMessage}</p>
          </div>
       );
@@ -86,11 +86,11 @@ export function DataTable<T extends Record<string, any>>({
                      {columns.map((column) => (
                         <th
                            key={column.key}
-                           className={`px-6 py-3 text-left text-xs font-medium text-secondary uppercase tracking-wider ${column.sortable ? 'cursor-pointer hover:bg-surface-hover' : ''
+                           className={`px-6 py-3 text-xs font-medium text-secondary uppercase tracking-wider ${column.sortable ? 'cursor-pointer hover:bg-surface-hover' : ''
                               } ${column.className || ''}`}
                            onClick={() => column.sortable && handleSort(column.key)}
                         >
-                           <div className="flex items-center space-x-1">
+                           <div className={`flex items-center space-x-1 ${column.className?.includes('text-center') ? 'justify-center' : column.className?.includes('text-right') ? 'justify-end' : ''}`}>
                               <span>{column.header}</span>
                               {column.sortable && sortColumn === column.key && (
                                  <span className="text-brand-primary">
@@ -161,7 +161,7 @@ export function DataTable<T extends Record<string, any>>({
                   <button
                      onClick={() => pagination.onPageChange(1)}
                      disabled={pagination.page === 1}
-                     className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                     className="p-2 rounded hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed text-secondary"
                      title="Primera página"
                   >
                      <ChevronsLeft className="w-5 h-5" />
@@ -171,7 +171,7 @@ export function DataTable<T extends Record<string, any>>({
                   <button
                      onClick={() => pagination.onPageChange(pagination.page - 1)}
                      disabled={pagination.page === 1}
-                     className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                     className="p-2 rounded hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed text-secondary"
                      title="Página anterior"
                   >
                      <ChevronLeft className="w-5 h-5" />
@@ -196,8 +196,8 @@ export function DataTable<T extends Record<string, any>>({
                               key={pageNum}
                               onClick={() => pagination.onPageChange(pageNum)}
                               className={`px-3 py-1 rounded ${pagination.page === pageNum
-                                 ? 'bg-indigo-600 text-white'
-                                 : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                 ? 'bg-brand-secondary text-white'
+                                 : 'hover:bg-surface-hover text-secondary'
                                  }`}
                            >
                               {pageNum}
@@ -210,7 +210,7 @@ export function DataTable<T extends Record<string, any>>({
                   <button
                      onClick={() => pagination.onPageChange(pagination.page + 1)}
                      disabled={pagination.page === pagination.totalPages}
-                     className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                     className="p-2 rounded hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed text-secondary"
                      title="Página siguiente"
                   >
                      <ChevronRight className="w-5 h-5" />
@@ -220,7 +220,7 @@ export function DataTable<T extends Record<string, any>>({
                   <button
                      onClick={() => pagination.onPageChange(pagination.totalPages)}
                      disabled={pagination.page === pagination.totalPages}
-                     className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                     className="p-2 rounded hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed text-secondary"
                      title="Última página"
                   >
                      <ChevronsRight className="w-5 h-5" />

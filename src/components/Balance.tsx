@@ -1,15 +1,12 @@
 import { useEffect } from 'react';
 import { Wallet, RefreshCw, TrendingUp, Clock } from 'lucide-react';
 import { useAuthStore } from '@/store';
-import { useUserBalance } from '@/hooks/useTransactions';
+import { useBalance } from '@/hooks';
 import { cn } from '@/utils';
 
 export function Balance() {
    const { user } = useAuthStore();
-   const { data: balanceData, isLoading, isError, refetch } = useUserBalance(
-      user?.id || '',
-      'BACKOFFICE'
-   );
+   const { data: balanceData, isLoading, isError, refetch } = useBalance();
 
    // Auto-refetch every 30 seconds
    useEffect(() => {
@@ -159,10 +156,7 @@ export function Balance() {
 // Versión compacta para el header móvil
 export function BalanceMobile() {
    const { user } = useAuthStore();
-   const { data: balanceData, isLoading } = useUserBalance(
-      user?.id || '',
-      'BACKOFFICE'
-   );
+   const { data: balanceData, isLoading } = useBalance();
 
    const formatCurrency = (amount: number): string => {
       return new Intl.NumberFormat('es-ES', {

@@ -13,8 +13,9 @@ import { BrandsPage } from './pages/BrandsPage';
 import { GamesPage } from './pages/GamesPage';
 import { AuditPage } from './pages/AuditPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { ComponentsShowcasePage } from './pages/ComponentsShowcasePage';
-import { ThemeDevelopmentPage } from './pages/dev/ThemeDevelopmentPage';
+import BannersPage from './pages/BannersPage';
+import ColorsPage from './pages/ColorsPage';
+import PublicPage from './pages/PublicPage';
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -94,6 +95,9 @@ function App() {
                <Route path="transactions" element={<TransactionsPage />} />
                <Route path="brands" element={<BrandsPage />} />
                <Route path="games" element={<GamesPage />} />
+               <Route path="public" element={<PublicPage />} />
+               <Route path="banners" element={<BannersPage />} />
+               <Route path="colors" element={<ColorsPage />} />
                <Route path="audit" element={<AuditPage />} />
                <Route path="audit/:userId" element={<AuditPage />} />
                <Route path="settings" element={<SettingsPage />} />

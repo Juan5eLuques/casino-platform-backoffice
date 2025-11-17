@@ -43,7 +43,7 @@ export function GamesPage() {
    };
 
    return (
-      <div className="min-h-screen bg-primary sm:p-4 md:p-6">
+      <div className="min-h-screen bg-primary   ">
          {/* Header */}
          <div className="mb-4 sm:mb-6">
             <div className="flex items-center gap-2 sm:gap-3 mb-2">

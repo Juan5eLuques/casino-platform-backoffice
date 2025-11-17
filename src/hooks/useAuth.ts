@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { authApi } from '@/api';
 import { useAuthStore } from '@/store';
 import type { LoginCredentials } from '@/types';
@@ -19,16 +18,8 @@ export const useLogin = () => {
    return useMutation({
       mutationFn: (credentials: LoginCredentials) => login(credentials),
       onSuccess: () => {
-         // Toast de éxito
-         toast.success('¡Bienvenido! Iniciando sesión...');
-
          // Navegar al dashboard después del login exitoso
          navigate('/dashboard', { replace: true });
-      },
-      onError: (error: any) => {
-         // Toast de error
-         const errorMessage = error?.response?.data?.message || error?.message || 'Error al iniciar sesión';
-         toast.error(errorMessage);
       },
    });
 };
@@ -43,9 +34,6 @@ export const useLogout = () => {
       onSuccess: () => {
          // Clear all cached data on logout
          queryClient.clear();
-
-         // Toast de éxito
-         toast.success('Sesión cerrada correctamente');
 
          // Navegar al login después del logout
          navigate('/login', { replace: true });

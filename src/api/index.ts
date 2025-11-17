@@ -9,4 +9,5 @@ export { gamesApi } from './games';
 export { assignmentsApi } from './assignments';
 export { dashboardApi } from './dashboard';
 export { treeApi } from './tree';
+export { brandAssetsApi } from './brandAssets';
 export { apiClient } from './client';

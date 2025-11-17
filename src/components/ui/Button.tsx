@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/utils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-   variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
+   variant?: 'primary' | 'secondary' | 'danger' | 'success';
    size?: 'sm' | 'md' | 'lg';
    loading?: boolean;
    children: React.ReactNode;
@@ -17,7 +17,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
          secondary: 'bg-btn-secondary-bg hover:bg-btn-secondary-bg-hover active:bg-btn-secondary-bg-active text-btn-secondary-text border border-btn-secondary-border hover:border-btn-secondary-border-hover',
          danger: 'bg-btn-danger-bg hover:bg-btn-danger-bg-hover active:bg-btn-danger-bg-active text-btn-danger-text border border-btn-danger-border hover:border-btn-danger-border-hover',
          success: 'bg-btn-success-bg hover:bg-btn-success-bg-hover active:bg-btn-success-bg-active text-btn-success-text border border-btn-success-border hover:border-btn-success-border-hover',
-         warning: 'bg-btn-warning-bg hover:bg-btn-warning-bg-hover active:bg-btn-warning-bg-active text-btn-warning-text border border-btn-warning-border hover:border-btn-warning-border-hover',
       };
 
       const sizeClasses = {

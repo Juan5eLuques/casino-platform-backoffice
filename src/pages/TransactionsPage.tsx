@@ -1,50 +1,28 @@
 import { useState } from 'react';
 import { Search, Filter, DollarSign, ArrowUpRight, ArrowDownLeft, FileText, ArrowRight } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Link } from 'react-router-dom';
 import { FilterButtonGroup } from '@/components/FilterButtonGroup';
 import { DatePicker } from '@/components/ui';
 
 import { DataTable, Column } from '@/components/DataTable';
-import { Modal } from '@/components/Modal';
-// import { useAuthStore } from '@/store'; // TODO: Descomentar para quick actions
 import {
    useTransactions,
-   useCreateTransaction,
-   // useDepositFunds, // TODO: Descomentar para quick actions
-   // useWithdrawFunds, // TODO: Descomentar para quick actions
-   useBackofficeUsers,
-   usePlayers
 } from '@/hooks';
-import type { CreateTransactionRequest, TransactionType } from '@/types';
+import type { TransactionType } from '@/types';
 
-// Schema para crear transacción
-const createTransactionSchema = z.object({
-   fromUserId: z.string().min(1, 'Usuario origen es requerido'),
-   fromUserType: z.enum(['BACKOFFICE', 'PLAYER']),
-   toUserId: z.string().min(1, 'Usuario destino es requerido'),
-   toUserType: z.enum(['BACKOFFICE', 'PLAYER']),
-   amount: z.number().min(0.01, 'El monto debe ser mayor a 0'),
-   description: z.string().min(1, 'La descripción es requerida'),
-   transactionType: z.enum(['TRANSFER', 'DEPOSIT', 'WITHDRAWAL', 'ADJUSTMENT']),
-});
-
-type CreateTransactionFormData = z.infer<typeof createTransactionSchema>;
 
 const getTransactionIcon = (type: string) => {
    switch (type) {
       case 'DEPOSIT':
-         return <ArrowDownLeft className="h-4 w-4 text-green-500" />;
+         return <ArrowDownLeft className="h-4 w-4 text-status-success-text" />;
       case 'WITHDRAWAL':
-         return <ArrowUpRight className="h-4 w-4 text-red-500" />;
+         return <ArrowUpRight className="h-4 w-4 text-status-error-text" />;
       case 'TRANSFER':
-         return <DollarSign className="h-4 w-4 text-blue-500" />;
+         return <DollarSign className="h-4 w-4 text-brand-secondary" />;
       case 'ADJUSTMENT':
-         return <FileText className="h-4 w-4 text-orange-500" />;
+         return <FileText className="h-4 w-4 text-status-warning-text" />;
       default:
-         return <DollarSign className="h-4 w-4 text-gray-500" />;
+         return <DollarSign className="h-4 w-4 text-tertiary" />;
    }
 };
 
@@ -72,91 +50,12 @@ export function TransactionsPage() {
    const [dateFromFilter, setDateFromFilter] = useState(formatDate(firstDayOfMonth));
    const [dateToFilter, setDateToFilter] = useState(formatDate(today));
 
-   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-   // const [isQuickActionModalOpen, setIsQuickActionModalOpen] = useState(false);
-
-   // Query para transacciones con filtros
    const { data: transactionsData, isLoading } = useTransactions({
       fromDate: dateFromFilter || undefined,
       toDate: dateToFilter || undefined,
       externalRef: search || undefined,
       transactionType: transactionTypeFilter || undefined,
    });
-
-   // Queries para usuarios (para seleccionar en formularios)
-   const { data: backofficeUsers } = useBackofficeUsers();
-   const { data: players } = usePlayers();
-
-   // Mutations
-   const createTransactionMutation = useCreateTransaction();
-   // const depositFundsMutation = useDepositFunds(); // TODO: Descomentar para quick actions
-   // const withdrawFundsMutation = useWithdrawFunds(); // TODO: Descomentar para quick actions
-
-   const {
-      register,
-      handleSubmit,
-      formState: { errors },
-      reset,
-      watch
-   } = useForm<CreateTransactionFormData>({
-      resolver: zodResolver(createTransactionSchema),
-      defaultValues: {
-         fromUserType: 'BACKOFFICE',
-         toUserType: 'PLAYER',
-         transactionType: 'TRANSFER',
-      }
-   });
-
-   const selectedFromUserType = watch('fromUserType');
-   const selectedToUserType = watch('toUserType');
-
-   const handleCreateTransaction = async (data: CreateTransactionFormData) => {
-      const transactionData: CreateTransactionRequest = {
-         fromUserId: data.fromUserId,
-         fromUserType: data.fromUserType,
-         toUserId: data.toUserId,
-         toUserType: data.toUserType,
-         amount: data.amount,
-         transactionType: data.transactionType,
-         description: data.description,
-         idempotencyKey: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      };
-
-      await createTransactionMutation.mutateAsync(transactionData);
-      reset();
-      setIsCreateModalOpen(false);
-   };
-
-   /* TODO: Descomentar cuando se agreguen botones de quick actions
-   const handleQuickSend = async (data: { toUserId: string; toUserType: 'BACKOFFICE' | 'PLAYER'; amount: number; description: string }) => {
-      if (!currentUser) return;
-
-      await depositFundsMutation.mutateAsync({
-         currentUserId: currentUser.id,
-         currentUserType: 'BACKOFFICE',
-         isSuperAdmin: currentUser.role === 'SUPER_ADMIN',
-         toUserId: data.toUserId,
-         toUserType: data.toUserType,
-         amount: data.amount,
-         description: data.description,
-      });
-
-      // setIsQuickActionModalOpen(false);
-   };
-
-   const handleQuickRemove = async (data: { targetUserId: string; targetUserType: 'BACKOFFICE' | 'PLAYER'; amount: number; description: string }) => {
-      if (!currentUser) return;
-
-      await withdrawFundsMutation.mutateAsync({
-         fromUserId: data.targetUserId,
-         fromUserType: data.targetUserType,
-         amount: data.amount,
-         description: data.description,
-      });
-
-      // setIsQuickActionModalOpen(false);
-   };
-   */
 
    const columns: Column<Record<string, any>>[] = [
       {
@@ -280,7 +179,7 @@ export function TransactionsPage() {
 
             {/* Búsqueda */}
             <div className="space-y-2">
-               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+               <label className="block text-xs sm:text-sm font-medium text-secondary">
                   Buscar por descripción
                </label>
                <div className="relative">
@@ -320,7 +219,7 @@ export function TransactionsPage() {
 
             {/* Tipo de Usuario - Botones */}
             <div className="space-y-3">
-               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+               <label className="block text-xs sm:text-sm font-medium text-secondary">
                   Tipo de Usuario
                </label>
                <FilterButtonGroup
@@ -375,7 +274,7 @@ export function TransactionsPage() {
          </div>
 
          {/* Tabla de transacciones - Responsive */}
-         <div className="bg-white dark:bg-dark-bg-secondary rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+         <div className="bg-secondary rounded-lg shadow-sm border border-default overflow-hidden">
             <div className="overflow-x-auto">
                <DataTable
                   data={transactionsData?.data || []}
@@ -393,311 +292,6 @@ export function TransactionsPage() {
             </div>
          </div>
 
-         {/* Modal para crear transacción */}
-         <Modal
-            isOpen={isCreateModalOpen}
-            onClose={() => {
-               setIsCreateModalOpen(false);
-               reset();
-            }}
-            title="Nueva Transacción"
-         >
-            <form onSubmit={handleSubmit(handleCreateTransaction)} className="space-y-4">
-               <div className="grid grid-cols-2 gap-4">
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tipo de Usuario Origen
-                     </label>
-                     <select
-                        {...register('fromUserType')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     >
-                        <option value="BACKOFFICE">Backoffice</option>
-                        <option value="PLAYER">Jugador</option>
-                     </select>
-                  </div>
-
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Usuario Origen
-                     </label>
-                     <select
-                        {...register('fromUserId')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     >
-                        <option value="">Seleccionar usuario</option>
-                        {selectedFromUserType === 'BACKOFFICE'
-                           ? backofficeUsers?.data.map(user => (
-                              <option key={user.id} value={user.id}>{user.username}</option>
-                           ))
-                           : players?.data.map(user => (
-                              <option key={user.id} value={user.id}>{user.username}</option>
-                           ))
-                        }
-                     </select>
-                     {errors.fromUserId && (
-                        <p className="text-red-500 text-sm mt-1">{errors.fromUserId.message}</p>
-                     )}
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-2 gap-4">
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tipo de Usuario Destino
-                     </label>
-                     <select
-                        {...register('toUserType')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     >
-                        <option value="BACKOFFICE">Backoffice</option>
-                        <option value="PLAYER">Jugador</option>
-                     </select>
-                  </div>
-
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Usuario Destino
-                     </label>
-                     <select
-                        {...register('toUserId')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     >
-                        <option value="">Seleccionar usuario</option>
-                        {selectedToUserType === 'BACKOFFICE'
-                           ? backofficeUsers?.data.map(user => (
-                              <option key={user.id} value={user.id}>{user.username}</option>
-                           ))
-                           : players?.data.map(user => (
-                              <option key={user.id} value={user.id}>{user.username}</option>
-                           ))
-                        }
-                     </select>
-                     {errors.toUserId && (
-                        <p className="text-red-500 text-sm mt-1">{errors.toUserId.message}</p>
-                     )}
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-2 gap-4">
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tipo de Transacción
-                     </label>
-                     <select
-                        {...register('transactionType')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     >
-                        <option value="TRANSFER">Transferencia</option>
-                        <option value="DEPOSIT">Depósito</option>
-                        <option value="WITHDRAWAL">Retiro</option>
-                        <option value="ADJUSTMENT">Ajuste</option>
-                     </select>
-                  </div>
-
-                  <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Monto
-                     </label>
-                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                        <input
-                           type="number"
-                           step="0.01"
-                           min="0.01"
-                           {...register('amount', { valueAsNumber: true })}
-                           className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           placeholder="0.00"
-                        />
-                     </div>
-                     {errors.amount && (
-                        <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>
-                     )}
-                  </div>
-               </div>
-
-               <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                     Descripción
-                  </label>
-                  <textarea
-                     {...register('description')}
-                     rows={3}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="Descripción de la transacción..."
-                  />
-                  {errors.description && (
-                     <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
-                  )}
-               </div>
-
-               <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                     type="button"
-                     onClick={() => {
-                        setIsCreateModalOpen(false);
-                        reset();
-                     }}
-                     className="px-4 py-2 text-secondary border border-default rounded-lg hover:bg-tertiary transition-colors"
-                  >
-                     Cancelar
-                  </button>
-                  <button
-                     type="submit"
-                     disabled={createTransactionMutation.isPending}
-                     className="px-4 py-2 bg-brand-secondary text-white rounded-lg hover:bg-brand-secondary hover:opacity-90 transition-all disabled:opacity-50"
-                  >
-                     {createTransactionMutation.isPending ? 'Creando...' : 'Crear Transacción'}
-                  </button>
-               </div>
-            </form>
-         </Modal>
-
-         {/* TODO: Modal para acciones rápidas - Descomentar cuando se agreguen botones de quick actions
-         <Modal
-            isOpen={isQuickActionModalOpen}
-            onClose={() => setIsQuickActionModalOpen(false)}
-            title="Acción Rápida"
-         >
-            <QuickActionModal
-               action="send"
-               onConfirm={handleQuickSend}
-               onCancel={() => setIsQuickActionModalOpen(false)}
-               backofficeUsers={backofficeUsers?.data || []}
-               players={players?.data || []}
-            />
-         </Modal>
-         */}
       </div>
    );
 }
-
-/* TODO: Descomentar cuando se agreguen botones de quick actions
-// Componente para modal de acciones rápidas
-const QuickActionModal = ({ action, onConfirm, onCancel, backofficeUsers, players }: {
-   action: 'send' | 'remove';
-   onConfirm: (data: any) => void;
-   onCancel: () => void;
-   backofficeUsers: any[];
-   players: any[];
-}) => {
-   const [userType, setUserType] = useState<'BACKOFFICE' | 'PLAYER'>('PLAYER');
-   const [userId, setUserId] = useState('');
-   const [amount, setAmount] = useState('');
-   const [description, setDescription] = useState('');
-
-   const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      const numAmount = parseFloat(amount);
-      if (numAmount > 0 && userId && description) {
-         if (action === 'send') {
-            onConfirm({
-               toUserId: userId,
-               toUserType: userType,
-               amount: numAmount,
-               description,
-            });
-         } else {
-            onConfirm({
-               targetUserId: userId,
-               targetUserType: userType,
-               amount: numAmount,
-               description,
-            });
-         }
-      }
-   };
-
-   return (
-      <form onSubmit={handleSubmit} className="space-y-4">
-         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-               Tipo de Usuario
-            </label>
-            <select
-               value={userType}
-               onChange={(e) => {
-                  setUserType(e.target.value as typeof userType);
-                  setUserId(''); // Reset user selection
-               }}
-               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-               <option value="PLAYER">Jugador</option>
-               <option value="BACKOFFICE">Backoffice</option>
-            </select>
-         </div>
-
-         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-               Usuario {action === 'send' ? 'Destino' : 'Origen'}
-            </label>
-            <select
-               value={userId}
-               onChange={(e) => setUserId(e.target.value)}
-               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-               required
-            >
-               <option value="">Seleccionar usuario</option>
-               {(userType === 'BACKOFFICE' ? backofficeUsers : players).map(user => (
-                  <option key={user.id} value={user.id}>
-                     {user.username} {user.walletBalance ? `($${user.walletBalance.toLocaleString()})` : ''}
-                  </option>
-               ))}
-            </select>
-         </div>
-
-         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-               Monto
-            </label>
-            <div className="relative">
-               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-               <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0.00"
-                  required
-               />
-            </div>
-         </div>
-
-         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-               Descripción
-            </label>
-            <input
-               type="text"
-               value={description}
-               onChange={(e) => setDescription(e.target.value)}
-               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-               placeholder={`Motivo del ${action === 'send' ? 'envío' : 'retiro'}...`}
-               required
-            />
-         </div>
-
-         <div className="flex justify-end space-x-3 pt-4">
-            <button
-               type="button"
-               onClick={onCancel}
-               className="px-4 py-2 text-secondary border border-default rounded-lg hover:bg-tertiary transition-colors"
-            >
-               Cancelar
-            </button>
-            <button
-               type="submit"
-               className={`px-4 py-2 text-white rounded-lg transition-all ${action === 'send'
-                  ? 'bg-status-success hover:opacity-90'
-                  : 'bg-btn-danger-bg hover:bg-btn-danger-bg-hover'
-                  }`}
-            >
-               {action === 'send' ? 'Enviar Fondos' : 'Retirar Fondos'}
-            </button>
-         </div>
-      </form>
-   );
-};
-*/

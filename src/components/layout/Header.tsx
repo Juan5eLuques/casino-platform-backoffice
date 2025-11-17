@@ -10,16 +10,33 @@ import {
    Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { Menu, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { useAuthStore, useUIStore } from '@/store';
 import { useLogout } from '@/hooks/useAuth';
+import { useBrandAssets } from '@/hooks';
 import { getInitials, getRoleBadgeClass } from '@/utils';
 import { BalanceMobile } from '@/components/Balance';
 
 export function Header() {
    const { user, currentBrand, availableBrands, switchBrand } = useAuthStore();
    const { darkMode, toggleDarkMode, toggleSidebar } = useUIStore();
+   const { data: assets } = useBrandAssets();
    const logoutMutation = useLogout();
+
+   // Update favicon dynamically
+   useEffect(() => {
+      if (assets?.media?.favicon) {
+         const link = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
+         if (link) {
+            link.href = assets.media.favicon;
+         } else {
+            const newLink = document.createElement('link');
+            newLink.rel = 'icon';
+            newLink.href = assets.media.favicon;
+            document.head.appendChild(newLink);
+         }
+      }
+   }, [assets?.media?.favicon]);
 
    const handleLogout = async () => {
       try {

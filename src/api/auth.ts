@@ -2,7 +2,8 @@ import { apiClient, handleApiResponse } from './client';
 import type {
    LoginCredentials,
    AuthResponse,
-   BackofficeUser
+   BackofficeUser,
+   UserBalanceResponse
 } from '@/types';
 
 export const authApi = {
@@ -16,6 +17,12 @@ export const authApi = {
    getMe: async (): Promise<BackofficeUser> => {
       const response = await apiClient.get('/admin/auth/me');
       return handleApiResponse<BackofficeUser>(response);
+   },
+
+   // Get current user balance
+   getBalance: async (): Promise<UserBalanceResponse> => {
+      const response = await apiClient.get('/balance');
+      return handleApiResponse<UserBalanceResponse>(response);
    },
 
    // Logout

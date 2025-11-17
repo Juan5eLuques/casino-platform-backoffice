@@ -20,9 +20,9 @@ export const bet30LightTheme: BrandTheme = {
       primary: '#0F172A',        // Azul marino oscuro (casi negro) - profesional y elegante
       primaryHover: '#1E293B',   // Azul marino medio
       primaryActive: '#334155',  // Azul marino claro
-      secondary: '#3B82F6',      // Azul vibrante - para acciones importantes
-      secondaryHover: '#2563EB',
-      secondaryActive: '#1D4ED8',
+      secondary: '#2563EB',      // Azul vibrante - para acciones importantes
+      secondaryHover: '#1D4ED8', // Azul más intenso
+      secondaryActive: '#1E40AF', // Azul profundo
       accent: '#10B981',         // Verde esmeralda - para éxito y confirmaciones
       accentHover: '#059669',
       accentActive: '#047857',
@@ -60,22 +60,22 @@ export const bet30LightTheme: BrandTheme = {
          borderHover: '#1E293B',
       },
       secondary: {
-         background: '#3B82F6',
-         backgroundHover: '#2563EB',
-         backgroundActive: '#1D4ED8',
+         background: '#2563EB',
+         backgroundHover: '#1D4ED8',
+         backgroundActive: '#1E40AF',
          text: '#FFFFFF',
          textHover: '#FFFFFF',
-         border: '#3B82F6',
-         borderHover: '#2563EB',
+         border: '#2563EB',
+         borderHover: '#1D4ED8',
       },
       danger: {
-         background: '#EA580C',
-         backgroundHover: '#C2410C',
-         backgroundActive: '#9A3412',
+         background: '#DC2626',
+         backgroundHover: '#B91C1C',
+         backgroundActive: '#991B1B',
          text: '#FFFFFF',
          textHover: '#FFFFFF',
-         border: '#EA580C',
-         borderHover: '#C2410C',
+         border: '#DC2626',
+         borderHover: '#B91C1C',
       },
       success: {
          background: '#10B981',
@@ -199,12 +199,12 @@ export const bet30DarkTheme: BrandTheme = {
 
    // Colores de Identidad - Ajustados para dark mode
    brand: {
-      primary: '#60A5FA',        // Azul brillante para dark
-      primaryHover: '#3B82F6',   // Azul vibrante
-      primaryActive: '#2563EB',  // Azul intenso
-      secondary: '#94A3B8',      // Slate claro
-      secondaryHover: '#CBD5E1',
-      secondaryActive: '#E2E8F0',
+      primary: '#3B82F6',        // Azul brillante para dark
+      primaryHover: '#2563EB',   // Azul vibrante
+      primaryActive: '#1D4ED8',  // Azul intenso
+      secondary: '#1E40AF',      // Azul profundo
+      secondaryHover: '#1D4ED8',
+      secondaryActive: '#2563EB',
       accent: '#34D399',         // Verde esmeralda brillante
       accentHover: '#10B981',
       accentActive: '#059669',
@@ -251,13 +251,13 @@ export const bet30DarkTheme: BrandTheme = {
          borderHover: '#64748B',
       },
       danger: {
-         background: '#FB923C',
-         backgroundHover: '#F97316',
-         backgroundActive: '#EA580C',
+         background: '#DC2626',
+         backgroundHover: '#B91C1C',
+         backgroundActive: '#991B1B',
          text: '#FFFFFF',
          textHover: '#FFFFFF',
-         border: '#FB923C',
-         borderHover: '#F97316',
+         border: '#DC2626',
+         borderHover: '#B91C1C',
       },
       success: {
          background: '#10B981',

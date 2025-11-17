@@ -1,27 +1,39 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
    HomeIcon,
-   UsersIcon,
    UserGroupIcon,
    PuzzlePieceIcon,
    ClipboardDocumentListIcon,
-   CogIcon,
    XMarkIcon,
+   Bars3Icon,
    CurrencyDollarIcon,
+   RectangleGroupIcon,
+   SwatchIcon,
+   GlobeAltIcon,
 } from '@heroicons/react/24/outline';
-import { useUIStore, useAuthStore } from '@/store';
+import { useUIStore } from '@/store';
+import { useBrandAssets } from '@/hooks';
 import { cn } from '@/utils';
 
-const navigation = [
-   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-   // { name: 'Operadores', href: '/operators', icon: BuildingLibraryIcon },
-   // { name: 'Brands', href: '/brands', icon: BuildingOfficeIcon },
-   { name: 'Usuarios', href: '/users', icon: UserGroupIcon },
-   { name: 'Jugadores', href: '/players', icon: UsersIcon },
-   { name: 'Transacciones', href: '/transactions', icon: CurrencyDollarIcon },
-   { name: 'Juegos', href: '/games', icon: PuzzlePieceIcon },
-   { name: 'Auditoría', href: '/audit', icon: ClipboardDocumentListIcon },
-   { name: 'Configuración', href: '/settings', icon: CogIcon },
+const navigationSections = [
+   {
+      title: 'Gestión',
+      items: [
+         { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+         { name: 'Usuarios', href: '/users', icon: UserGroupIcon },
+         { name: 'Transacciones', href: '/transactions', icon: CurrencyDollarIcon },
+         { name: 'Juegos', href: '/games', icon: PuzzlePieceIcon },
+         { name: 'Auditoría', href: '/audit', icon: ClipboardDocumentListIcon },
+      ]
+   },
+   {
+      title: 'Personalización',
+      items: [
+         { name: 'Público', href: '/public', icon: GlobeAltIcon },
+         { name: 'Banners', href: '/banners', icon: RectangleGroupIcon },
+         { name: 'Colores', href: '/colors', icon: SwatchIcon },
+      ]
+   }
 ];
 
 
@@ -29,21 +41,9 @@ const navigation = [
 export function Sidebar() {
    const location = useLocation();
    const { sidebarCollapsed, toggleSidebar } = useUIStore();
-   const { user } = useAuthStore();
+   const { data: assets } = useBrandAssets();
 
-   // Filtrar navegación según roles
-   const getFilteredNavigation = () => {
-      const allNavigation = [...navigation];
-
-      // Agregar navegación de cashier si el usuario tiene el rol apropiado
-      if (user && ['CASHIER', 'OPERATOR_ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
-         allNavigation.splice(1, 0);
-      }
-
-      return allNavigation;
-   };
-
-   const filteredNavigation = getFilteredNavigation();
+   const logo = assets?.media?.logo;
 
    return (
       <>
@@ -66,75 +66,108 @@ export function Sidebar() {
                   : 'translate-x-0 w-64'
             )}
          >
-            {/* Logo y botón cerrar */}
+            {/* Logo y botón */}
             <div className="flex items-center justify-between h-16 px-4 border-b border-default">
-               <div className={cn(
-                  "flex items-center space-x-2 transition-opacity duration-300",
-                  sidebarCollapsed ? "lg:opacity-0 lg:pointer-events-none" : "opacity-100"
-               )}>
-                  <div className="w-8 h-8 bg-brand-secondary rounded-lg flex items-center justify-center shadow-sm">
-                     <span className="text-white font-bold text-sm">🎰</span>
-                  </div>
-                  <span className="text-lg font-bold text-primary whitespace-nowrap">
-                     Casino BO
-                  </span>
+               {/* Logo - siempre visible */}
+               <div className="flex items-center space-x-2 min-w-0 flex-1">
+                  {logo ? (
+                     <img 
+                        src={logo} 
+                        alt="Logo" 
+                        className={cn(
+                           "h-8 object-contain transition-all duration-300",
+                           sidebarCollapsed ? "lg:w-8" : "max-w-[180px]"
+                        )}
+                     />
+                  ) : (
+                     <>
+                        <div className="w-8 h-8 bg-brand-secondary rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
+                           <span className="text-white font-bold text-sm">🎰</span>
+                        </div>
+                        <span className={cn(
+                           "text-lg font-bold text-primary whitespace-nowrap transition-all duration-300",
+                           sidebarCollapsed ? "lg:hidden" : "block"
+                        )}>
+                           Casino BO
+                        </span>
+                     </>
+                  )}
                </div>
-               {/* Botón para mobile y desktop */}
+               
+               {/* Botón toggle */}
                <button
                   onClick={toggleSidebar}
-                  className={cn(
-                     "p-1.5 rounded-lg text-secondary hover:text-primary hover:bg-tertiary transition-colors",
-                     sidebarCollapsed && "lg:mx-auto"
-                  )}
+                  className="p-1.5 rounded-lg text-secondary hover:text-primary hover:bg-tertiary transition-colors flex-shrink-0 ml-2"
                   title={sidebarCollapsed ? "Abrir menú" : "Cerrar menú"}
                >
-                  <XMarkIcon className="w-5 h-5" />
+                  {sidebarCollapsed ? (
+                     <Bars3Icon className="w-5 h-5" />
+                  ) : (
+                     <XMarkIcon className="w-5 h-5" />
+                  )}
                </button>
             </div>
 
             {/* Navigation */}
             <nav className="mt-8 px-3 overflow-y-auto flex-1">
-               <div className="space-y-1">
-                  {filteredNavigation.map((item) => {
-                     const isActive = location.pathname === item.href;
-                     return (
-                        <NavLink
-                           key={item.name}
-                           to={item.href}
-                           onClick={() => {
-                              // Cerrar sidebar en mobile al navegar
-                              if (window.innerWidth < 1024) {
-                                 toggleSidebar();
-                              }
-                           }}
-                           className={cn(
-                              'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200',
-                              isActive
-                                 ? 'bg-brand-secondary text-white shadow-sm'
-                                 : 'text-secondary hover:bg-tertiary hover:text-primary',
-                              sidebarCollapsed && 'lg:justify-center'
-                           )}
-                           title={sidebarCollapsed ? item.name : undefined}
-                        >
-                           <item.icon
-                              className={cn(
-                                 'flex-shrink-0 w-5 h-5 transition-colors',
-                                 !sidebarCollapsed && 'mr-3',
-                                 isActive
-                                    ? 'text-white'
-                                    : 'text-tertiary group-hover:text-brand-secondary'
-                              )}
-                           />
-                           <span className={cn(
-                              "flex-1 transition-opacity duration-300",
-                              sidebarCollapsed ? "lg:opacity-0 lg:w-0 lg:overflow-hidden" : "opacity-100"
-                           )}>
-                              {item.name}
-                           </span>
-                        </NavLink>
-                     );
-                  })}
-               </div>
+               {navigationSections.map((section) => (
+                  <div key={section.title} className="mb-6">
+                     {/* Section Title */}
+                     {!sidebarCollapsed && (
+                        <h3 className="px-3 mb-2 text-xs font-semibold text-tertiary uppercase tracking-wider">
+                           {section.title}
+                        </h3>
+                     )}
+                     {sidebarCollapsed && (
+                        <div className="hidden lg:block mb-2 px-3">
+                           <div className="h-px bg-default"></div>
+                        </div>
+                     )}
+                     
+                     {/* Section Items */}
+                     <div className="space-y-1">
+                        {section.items.map((item) => {
+                           const isActive = location.pathname === item.href;
+                           return (
+                              <NavLink
+                                 key={item.name}
+                                 to={item.href}
+                                 onClick={() => {
+                                    // Cerrar sidebar en mobile al navegar
+                                    if (window.innerWidth < 1024) {
+                                       toggleSidebar();
+                                    }
+                                 }}
+                                 className={cn(
+                                    'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200',
+                                    isActive
+                                       ? 'bg-brand-secondary text-white shadow-sm'
+                                       : 'text-secondary hover:bg-tertiary hover:text-primary',
+                                    sidebarCollapsed && 'lg:justify-center'
+                                 )}
+                                 title={sidebarCollapsed ? item.name : undefined}
+                              >
+                                 <item.icon
+                                    className={cn(
+                                       'flex-shrink-0 w-5 h-5 transition-colors',
+                                       !sidebarCollapsed && 'mr-3',
+                                       isActive
+                                          ? 'text-white'
+                                          : 'text-tertiary group-hover:text-brand-secondary'
+                                    )}
+                                 />
+                                 <span className={cn(
+                                    "flex-1 transition-opacity duration-300",
+                                    sidebarCollapsed ? "lg:opacity-0 lg:w-0 lg:overflow-hidden" : "opacity-100"
+                                 )}>
+                                    {item.name}
+                                 </span>
+                              </NavLink>
+                           );
+                        })}
+                     </div>
+                  </div>
+               ))}
             </nav>
 
             {/* Footer */}

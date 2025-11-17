@@ -24,6 +24,7 @@ interface TreeNodeProps {
    isLoading?: boolean;
    expandedNodes: Set<string>;
    onToggleExpand: (nodeId: string) => void;
+   loadingNodes: Set<string>;
 }
 
 const TreeNodeComponent = ({
@@ -31,10 +32,12 @@ const TreeNodeComponent = ({
    onNodeClick,
    isLoading,
    expandedNodes,
-   onToggleExpand
+   onToggleExpand,
+   loadingNodes
 }: TreeNodeProps) => {
    const isExpanded = expandedNodes.has(node.id);
    const hasLoadedChildren = node.children !== null;
+   const isLoadingChildren = loadingNodes.has(node.id);
 
    const handleToggle = () => {
       if (node.hasChildren) {
@@ -85,7 +88,7 @@ const TreeNodeComponent = ({
             className={cn(
                'group relative flex items-center gap-2 p-2.5 rounded-md border transition-all',
                'bg-secondary border-default',
-               'hover:border-brand-primary hover:shadow-sm',
+               'hover:border-brand-secondary hover:shadow-sm',
                isLoading && 'opacity-50 cursor-wait'
             )}
          >
@@ -190,17 +193,32 @@ const TreeNodeComponent = ({
          </div>
 
          {/* Hijos expandidos */}
-         {isExpanded && node.children && node.children.length > 0 && (
+         {isExpanded && (
             <div className="ml-4 mt-2 pl-3 border-l-2 border-gray-200 dark:border-gray-700 space-y-2">
-               {node.children.map((child) => (
-                  <TreeNodeComponent
-                     key={child.id}
-                     node={child}
-                     onNodeClick={onNodeClick}
-                     expandedNodes={expandedNodes}
-                     onToggleExpand={onToggleExpand}
-                  />
-               ))}
+               {/* Mostrar loader si está cargando y no tiene hijos cargados */}
+               {isLoadingChildren && !hasLoadedChildren ? (
+                  <div className="relative flex items-center gap-2 p-2.5 rounded-md border bg-secondary border-default animate-pulse">
+                     <div className="w-5" />
+                     <div className="flex items-center justify-center w-7 h-7 rounded-full bg-tertiary">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-brand-secondary" />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                        <div className="h-3 bg-tertiary rounded w-24 mb-1.5" />
+                        <div className="h-2 bg-tertiary rounded w-32" />
+                     </div>
+                  </div>
+               ) : node.children && node.children.length > 0 ? (
+                  node.children.map((child) => (
+                     <TreeNodeComponent
+                        key={child.id}
+                        node={child}
+                        onNodeClick={onNodeClick}
+                        expandedNodes={expandedNodes}
+                        onToggleExpand={onToggleExpand}
+                        loadingNodes={loadingNodes}
+                     />
+                  ))
+               ) : null}
             </div>
          )}
       </div>
@@ -215,6 +233,7 @@ interface UserTreeProps {
 
 export const UserTree = ({ rootNode, onLoadChildren, isLoading }: UserTreeProps) => {
    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+   const [loadingNodes, setLoadingNodes] = useState<Set<string>>(new Set());
 
    const handleToggleExpand = (nodeId: string) => {
       setExpandedNodes((prev) => {
@@ -229,7 +248,19 @@ export const UserTree = ({ rootNode, onLoadChildren, isLoading }: UserTreeProps)
    };
 
    const handleNodeClick = async (userId: string) => {
-      await onLoadChildren(userId);
+      // Marcar como loading
+      setLoadingNodes((prev) => new Set(prev).add(userId));
+      
+      try {
+         await onLoadChildren(userId);
+      } finally {
+         // Remover del loading
+         setLoadingNodes((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(userId);
+            return newSet;
+         });
+      }
    };
 
    return (
@@ -240,6 +271,7 @@ export const UserTree = ({ rootNode, onLoadChildren, isLoading }: UserTreeProps)
             isLoading={isLoading}
             expandedNodes={expandedNodes}
             onToggleExpand={handleToggleExpand}
+            loadingNodes={loadingNodes}
          />
       </div>
    );

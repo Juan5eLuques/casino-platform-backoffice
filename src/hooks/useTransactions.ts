@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { transactionsApi } from '@/api/transactions';
 import { useApiErrorHandler } from './useApiErrorHandler';
-import toast from 'react-hot-toast';
 import type {
    TransactionFilters,
    CreateTransactionRequest
@@ -42,7 +41,6 @@ export function useCreateTransaction() {
          queryClient.invalidateQueries({ queryKey: ['transactions'] });
          queryClient.invalidateQueries({ queryKey: ['userBalance'] });
          queryClient.invalidateQueries({ queryKey: ['users'] });
-         toast.success('Transacción creada exitosamente');
       },
       onError: (error: Error) => handleError(error),
    });
@@ -87,7 +85,6 @@ export function useDepositFunds() {
          queryClient.invalidateQueries({ queryKey: ['transactions'] });
          queryClient.invalidateQueries({ queryKey: ['userBalance'] });
          queryClient.invalidateQueries({ queryKey: ['users'] });
-         toast.success('Depósito realizado exitosamente');
       },
       onError: (error: Error) => handleError(error),
    });
@@ -128,7 +125,6 @@ export function useWithdrawFunds() {
          queryClient.invalidateQueries({ queryKey: ['transactions'] });
          queryClient.invalidateQueries({ queryKey: ['userBalance'] });
          queryClient.invalidateQueries({ queryKey: ['users'] });
-         toast.success('Retiro realizado exitosamente');
       },
       onError: (error: Error) => handleError(error),
    });
@@ -169,7 +165,6 @@ export function useTransferBetweenUsers() {
          queryClient.invalidateQueries({ queryKey: ['transactions'] });
          queryClient.invalidateQueries({ queryKey: ['userBalance'] });
          queryClient.invalidateQueries({ queryKey: ['users'] });
-         toast.success('Transferencia realizada exitosamente');
       },
       onError: (error: Error) => handleError(error),
    });
@@ -190,7 +185,6 @@ export function useRollbackTransaction() {
          queryClient.invalidateQueries({ queryKey: ['transactions'] });
          queryClient.invalidateQueries({ queryKey: ['userBalance'] });
          queryClient.invalidateQueries({ queryKey: ['users'] });
-         toast.success('Transacción revertida exitosamente');
       },
       onError: (error: Error) => handleError(error),
    });

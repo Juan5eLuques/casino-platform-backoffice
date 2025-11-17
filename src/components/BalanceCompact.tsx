@@ -1,6 +1,6 @@
 import { WalletIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/store';
-import { useUserBalance } from '@/hooks/useTransactions';
+import { useBalance } from '@/hooks';
 import { cn } from '@/utils';
 
 interface BalanceCompactProps {
@@ -9,10 +9,7 @@ interface BalanceCompactProps {
 
 export function BalanceCompact({ className }: BalanceCompactProps) {
    const { user } = useAuthStore();
-   const { data: balanceData, isLoading } = useUserBalance(
-      user?.id || '',
-      'BACKOFFICE'
-   );
+   const { data: balanceData, isLoading } = useBalance();
 
    const formatCurrency = (amount: number): string => {
       return new Intl.NumberFormat('es-ES', {
